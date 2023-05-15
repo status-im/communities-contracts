@@ -117,6 +117,9 @@ contract CollectibleV1 is
         uint256 firstTokenId,
         uint256 batchSize
     ) internal virtual override(ERC721Enumerable) {
+        if (from != address(0) && to != address(0) && !transferable) {
+            revert("not transferable");
+        }
         super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
     }
 
