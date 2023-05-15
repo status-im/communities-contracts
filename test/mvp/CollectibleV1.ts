@@ -68,10 +68,10 @@ describe("CollectibleV1", function () {
     });
 
     it("normal user cannot burn", async () => {
-      const addresses = accounts.map(a => a.address);
-      for (let i = 0; i < addresses.length; i++) {
-        expect(await token.balanceOf(addresses[i])).to.equal("1");
-      }
+      const a = accounts[0];
+      await expect(token.connect(a).remoteBurn([0])).to.be.revertedWith(
+        "Ownable: caller is not the owner"
+      );
     });
 
     // it("fails with not enough allowance", async () => {
