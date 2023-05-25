@@ -53,6 +53,11 @@ contract CollectibleV1 is
 
     // External functions
 
+    function setMaxSupply(uint256 newMaxSupply) external onlyOwner {
+        require(newMaxSupply >= totalSupply(), "MAX_SUPPLY_LOWER_THAN_TOTAL_SUPPLY");
+        maxSupply = newMaxSupply;
+    }
+
     /**
      * @dev Creates a new token for each address in `addresses`. Its token ID will be automatically
      * assigned (and available on the emitted {IERC721-Transfer} event), and the token
