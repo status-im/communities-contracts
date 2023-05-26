@@ -77,6 +77,10 @@ contract CollectibleV1 is
 
     // Public functions
 
+    function mintedCount() public view returns (uint256) {
+        return _tokenIdTracker.current();
+    }
+
     /**
      * @notice remoteBurn allows the owner to burn a token
      * @param tokenIds The list of token IDs to be burned
