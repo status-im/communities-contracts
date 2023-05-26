@@ -49,22 +49,48 @@ describe("CollectibleV1", function () {
 
     it("normal user cannot mint", async () => {
       const a = accounts[0];
-      await expect(
-        token.connect(a).mintTo([a.address])
-      ).to.be.revertedWith("Ownable: caller is not the owner");
+      await expect(token.connect(a).mintTo([a.address])).to.be.revertedWith(
+        "Ownable: caller is not the owner"
+      );
     });
 
     it("owner can mint", async () => {
-      const addresses = accounts.map(a => a.address);
+      const addresses = accounts.map((a) => a.address);
       for (let i = 0; i < addresses.length; i++) {
         expect(await token.balanceOf(addresses[i])).to.equal("0");
       }
 
-      await token.connect(owner).mintTo(addresses)
+      await token.connect(owner).mintTo(addresses);
 
       for (let i = 0; i < addresses.length; i++) {
         expect(await token.balanceOf(addresses[i])).to.equal("1");
       }
+    });
+
+    it("owner can mint until max supply is reached", async () => {
+      const CollectibleV1 = await ethers.getContractFactory("CollectibleV1");
+      const maxSupply = BN(4);
+      const token = await CollectibleV1.deploy(
+        "Test Token",
+        "TEST",
+        maxSupply.toString(),
+        true,
+        true,
+        "http://test.local"
+      );
+
+      await token.connect(owner).mintTo([accounts[0].address]);
+      await token.connect(owner).mintTo([accounts[1].address]);
+      await token
+        .connect(owner)
+        .mintTo([accounts[2].address, accounts[3].address]);
+
+      await expect(
+        token.connect(owner).mintTo([accounts[4].address])
+      ).to.be.revertedWith("MAX_SUPPLY_REACHED");
+
+      expect(await token.maxSupply()).to.equal(4);
+      expect(await token.totalSupply()).to.equal(4);
     });
 
     it("normal user cannot burn", async () => {

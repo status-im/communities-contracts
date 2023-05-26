@@ -67,7 +67,7 @@ contract CollectibleV1 is
     function mintTo(address[] memory addresses) external onlyOwner {
         // We cannot just use totalSupply() to create the new tokenId because tokens
         // can be burned so we use a separate counter.
-        require(_tokenIdTracker.current() + addresses.length < maxSupply, "MAX_SUPPLY_REACHED");
+        require(_tokenIdTracker.current() + addresses.length <= maxSupply, "MAX_SUPPLY_REACHED");
 
         for (uint256 i = 0; i < addresses.length; i++) {
             _safeMint(addresses[i], _tokenIdTracker.current(), "");

@@ -92,6 +92,8 @@ rule transferSoulbound {
 }
 
 rule maxSupplyNotLowerThanTotalSupply(env e, method f) {
+  require maxSupply() >= totalSupply();
+
   calldataarg args;
   f(e, args); // call all public/external functions of a contract
 
