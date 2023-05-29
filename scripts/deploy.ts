@@ -1,20 +1,22 @@
 import { ethers } from "hardhat";
+import { pn } from "./utils";
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+  const CollectibleV1 = await ethers.getContractFactory("CollectibleV1");
+  const contract = await CollectibleV1.deploy(
+    "Test",
+    "TEST",
+    100,
+    true,
+    true,
+    "http://local.dev"
+  );
 
-  const lockedAmount = ethers.utils.parseEther("1");
-
-  const Lock = await ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
-
-  await lock.deployed();
-
-  console.log(`Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`);
+  const instance = await contract.deployed();
+  const tx = instance.deployTransaction;
+  const rec = await tx.wait();
+  console.log("CollectibleV1 deployed. Gas used:", pn(rec.gasUsed));
 }
-
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 main().catch((error) => {

@@ -3,7 +3,15 @@ import "@nomicfoundation/hardhat-toolbox";
 import "@openzeppelin/test-helpers";
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.17",
+  solidity: {
+    version: "0.8.17",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
+  },
 };
 
 export default config;
