@@ -38,6 +38,8 @@ contract CommunityERC20 is
      *
      */
     function mintTo(address[] memory addresses, uint256[] memory amounts) external onlyOwner {
+        require(addresses.length == amounts.length, "WRONG_LENGTHS");
+
         for (uint256 i = 0; i < addresses.length; i++) {
             uint256 amount = amounts[i];
             require(totalSupply() + amount <= maxSupply, "MAX_SUPPLY_REACHED");
