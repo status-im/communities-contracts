@@ -36,7 +36,7 @@ contract OwnerToken is BaseToken {
         revert("max supply locked");
     }
 
-    function setMaxSupply(bytes memory _newSignerPublicKey) external onlyOwner {
+    function setSignerPublicKey(bytes memory _newSignerPublicKey) external onlyOwner {
         signerPublicKey = _newSignerPublicKey;
     }
 }
