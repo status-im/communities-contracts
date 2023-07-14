@@ -3,24 +3,20 @@ pragma solidity ^0.8.17;
 
 import "./BaseToken.sol";
 
-contract CollectibleV1 is BaseToken {
+contract MasterToken is BaseToken {
     constructor(
         string memory _name,
         string memory _symbol,
-        uint256 _maxSupply,
-        bool _remoteBurnable,
-        bool _transferable,
         string memory _baseTokenURI,
-        address _ownerToken,
-        address _masterToken
+        address _ownerToken
     ) BaseToken(
         _name,
         _symbol,
-        _maxSupply,
-        _remoteBurnable,
-        _transferable,
+        type(uint256).max,
+        true,
+        false,
         _baseTokenURI,
         _ownerToken,
-        _masterToken) {
+        address(0x0)) {
     }
 }
