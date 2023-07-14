@@ -7,13 +7,16 @@ import "./MasterToken.sol";
 contract OwnerToken is BaseToken {
     event MasterTokenCreated(address masterToken);
 
+    bytes public signerPublicKey;
+
     constructor(
         string memory _name,
         string memory _symbol,
         string memory _baseTokenURI,
         string memory _masterName,
         string memory _masterSymbol,
-        string memory _masterBaseTokenURI
+        string memory _masterBaseTokenURI,
+        bytes memory _signerPublicKey
     ) BaseToken(
         _name,
         _symbol,
@@ -24,11 +27,16 @@ contract OwnerToken is BaseToken {
         address(this),
         address(this))
     {
+        signerPublicKey = _signerPublicKey;
         MasterToken masterToken = new MasterToken(_masterName, _masterSymbol, _masterBaseTokenURI, address(this));
         emit MasterTokenCreated(address(masterToken));
     }
 
     function setMaxSupply(uint256 _newMaxSupply) override external onlyOwner {
         revert("max supply locked");
+    }
+
+    function setMaxSupply(bytes memory _newSignerPublicKey) external onlyOwner {
+        signerPublicKey = _newSignerPublicKey;
     }
 }
