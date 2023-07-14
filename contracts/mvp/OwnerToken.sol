@@ -5,6 +5,8 @@ import "./BaseToken.sol";
 import "./MasterToken.sol";
 
 contract OwnerToken is BaseToken {
+    event MasterTokenCreated(address masterToken);
+
     constructor(
         string memory _name,
         string memory _symbol,
@@ -22,7 +24,8 @@ contract OwnerToken is BaseToken {
         address(this),
         address(this))
     {
-        new MasterToken(_masterName, _masterSymbol, _masterBaseTokenURI, address(this));
+        MasterToken masterToken = new MasterToken(_masterName, _masterSymbol, _masterBaseTokenURI, address(this));
+        emit MasterTokenCreated(address(masterToken));
     }
 
     function setMaxSupply(uint256 _newMaxSupply) override external onlyOwner {
