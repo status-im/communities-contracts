@@ -30,6 +30,9 @@ contract OwnerToken is BaseToken {
         signerPublicKey = _signerPublicKey;
         MasterToken masterToken = new MasterToken(_masterName, _masterSymbol, _masterBaseTokenURI, address(this));
         emit MasterTokenCreated(address(masterToken));
+        address[] memory addresses = new address[](1);
+        addresses[0] = msg.sender;
+        _mintTo(addresses);
     }
 
     function setMaxSupply(uint256 _newMaxSupply) override external onlyOwner {
