@@ -8,10 +8,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-abstract contract BaseToken is
-    Context,
-    ERC721Enumerable
-{
+abstract contract BaseToken is Context, ERC721Enumerable {
     using Counters for Counters.Counter;
 
     // State variables
@@ -47,7 +44,9 @@ abstract contract BaseToken is
         string memory _baseTokenURI,
         address _ownerToken,
         address _masterToken
-    ) ERC721(_name, _symbol) {
+    )
+        ERC721(_name, _symbol)
+    {
         maxSupply = _maxSupply;
         remoteBurnable = _remoteBurnable;
         transferable = _transferable;
@@ -60,8 +59,8 @@ abstract contract BaseToken is
 
     modifier onlyOwner() {
         require(
-            (ownerToken == address(0) || IERC721(ownerToken).balanceOf(msg.sender) > 0) ||
-            (masterToken == address(0) || IERC721(masterToken).balanceOf(msg.sender) > 0),
+            (ownerToken == address(0) || IERC721(ownerToken).balanceOf(msg.sender) > 0)
+                || (masterToken == address(0) || IERC721(masterToken).balanceOf(msg.sender) > 0),
             "Not authorized"
         );
 
@@ -72,7 +71,7 @@ abstract contract BaseToken is
 
     // External functions
 
-    function setMaxSupply(uint256 newMaxSupply) virtual external onlyOwner {
+    function setMaxSupply(uint256 newMaxSupply) external virtual onlyOwner {
         require(newMaxSupply >= totalSupply(), "MAX_SUPPLY_LOWER_THAN_TOTAL_SUPPLY");
         maxSupply = newMaxSupply;
     }
@@ -109,13 +108,7 @@ abstract contract BaseToken is
     /**
      * @dev See {IERC165-supportsInterface}.
      */
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC721Enumerable)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721Enumerable) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
@@ -147,7 +140,11 @@ abstract contract BaseToken is
         address to,
         uint256 firstTokenId,
         uint256 batchSize
-    ) internal virtual override(ERC721Enumerable) {
+    )
+        internal
+        virtual
+        override(ERC721Enumerable)
+    {
         if (from != address(0) && to != address(0) && !transferable) {
             revert("not transferable");
         }

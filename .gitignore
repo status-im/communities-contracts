@@ -1,11 +1,23 @@
+
+# directories
+cache
 node_modules
-.env
+out
 coverage
 coverage.json
 typechain
 typechain-types
-
-#Hardhat files
-cache
-artifacts
 .certora_internal
+
+# files
+*.env
+*.log
+.DS_Store
+.pnp.*
+lcov.info
+yarn.lock
+
+# broadcasts
+!broadcast
+broadcast/*
+broadcast/*/31337/

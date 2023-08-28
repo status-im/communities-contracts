@@ -9,9 +9,9 @@ then
 fi
 
 certoraRun \
-  ./contracts/mvp/CollectibleV1.sol \
-  --verify CollectibleV1:./specs/mvp/CollectibleV1.spec \
-  --packages @openzeppelin=node_modules/@openzeppelin \
+  ./contracts/CollectibleV1.sol \
+  --verify CollectibleV1:./specs/CollectibleV1.spec \
+  --packages @openzeppelin=lib/openzeppelin-contracts \
   --optimistic_loop \
   --loop_iter 3 \
   --rule_sanity \
