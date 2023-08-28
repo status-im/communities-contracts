@@ -13,14 +13,7 @@ contract CollectibleV1 is BaseToken {
         string memory _baseTokenURI,
         address _ownerToken,
         address _masterToken
-    ) BaseToken(
-        _name,
-        _symbol,
-        _maxSupply,
-        _remoteBurnable,
-        _transferable,
-        _baseTokenURI,
-        _ownerToken,
-        _masterToken) {
-    }
+    )
+        BaseToken(_name, _symbol, _maxSupply, _remoteBurnable, _transferable, _baseTokenURI, _ownerToken, _masterToken)
+    { }
 }

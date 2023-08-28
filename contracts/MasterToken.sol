@@ -9,14 +9,7 @@ contract MasterToken is BaseToken {
         string memory _symbol,
         string memory _baseTokenURI,
         address _ownerToken
-    ) BaseToken(
-        _name,
-        _symbol,
-        type(uint256).max,
-        true,
-        false,
-        _baseTokenURI,
-        _ownerToken,
-        address(0x0)) {
-    }
+    )
+        BaseToken(_name, _symbol, type(uint256).max, true, false, _baseTokenURI, _ownerToken, address(0x0))
+    { }
 }
