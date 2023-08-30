@@ -2,11 +2,11 @@
 pragma solidity ^0.8.17;
 
 import { Test } from "forge-std/Test.sol";
-import { DeployOwnerToken } from "../script/DeployOwnerToken.s.sol";
+import { DeployOwnerAndMasterToken } from "../script/DeployOwnerAndMasterToken.s.sol";
 import { DeploymentConfig } from "../script/DeploymentConfig.s.sol";
-import { OwnerToken } from "../contracts/OwnerToken.sol";
-import { MasterToken } from "../contracts/MasterToken.sol";
-import { CollectibleV1 } from "../contracts/CollectibleV1.sol";
+import { OwnerToken } from "../contracts/tokens/OwnerToken.sol";
+import { MasterToken } from "../contracts/tokens/MasterToken.sol";
+import { CollectibleV1 } from "../contracts/tokens/CollectibleV1.sol";
 
 contract CollectibleV1Test is Test {
     CollectibleV1 internal collectibleV1;
@@ -22,7 +22,7 @@ contract CollectibleV1Test is Test {
     bool internal transferable = true;
 
     function setUp() public virtual {
-        DeployOwnerToken deployment = new DeployOwnerToken();
+        DeployOwnerAndMasterToken deployment = new DeployOwnerAndMasterToken();
         (OwnerToken ownerToken, MasterToken masterToken, DeploymentConfig deploymentConfig) = deployment.run();
         deployer = deploymentConfig.deployer();
 

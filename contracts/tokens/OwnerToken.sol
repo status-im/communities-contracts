@@ -2,29 +2,22 @@
 pragma solidity ^0.8.17;
 
 import "./BaseToken.sol";
-import "./MasterToken.sol";
 
 contract OwnerToken is BaseToken {
-    event MasterTokenCreated(address masterToken);
-
     bytes public signerPublicKey;
 
     constructor(
         string memory _name,
         string memory _symbol,
         string memory _baseTokenURI,
-        string memory _masterName,
-        string memory _masterSymbol,
-        string memory _masterBaseTokenURI,
+        address _receiver,
         bytes memory _signerPublicKey
     )
         BaseToken(_name, _symbol, 1, false, true, _baseTokenURI, address(this), address(this))
     {
         signerPublicKey = _signerPublicKey;
-        MasterToken masterToken = new MasterToken(_masterName, _masterSymbol, _masterBaseTokenURI, address(this));
-        emit MasterTokenCreated(address(masterToken));
         address[] memory addresses = new address[](1);
-        addresses[0] = msg.sender;
+        addresses[0] = _receiver;
         _mintTo(addresses);
     }
 

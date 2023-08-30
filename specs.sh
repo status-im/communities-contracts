@@ -9,7 +9,7 @@ then
 fi
 
 certoraRun \
-  ./contracts/CollectibleV1.sol \
+  ./contracts/tokens/CollectibleV1.sol \
   --verify CollectibleV1:./specs/CollectibleV1.spec \
   --packages @openzeppelin=lib/openzeppelin-contracts \
   --optimistic_loop \
