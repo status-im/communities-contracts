@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import { Test } from "forge-std/Test.sol";
 import { DeployOwnerAndMasterToken } from "../script/DeployOwnerAndMasterToken.s.sol";
 import { DeploymentConfig } from "../script/DeploymentConfig.s.sol";
+import { BaseToken } from "../contracts/tokens/BaseToken.sol";
 import { OwnerToken } from "../contracts/tokens/OwnerToken.sol";
 import { MasterToken } from "../contracts/tokens/MasterToken.sol";
 
@@ -42,7 +43,7 @@ contract SetMaxSupplyTest is OwnerTokenTest {
     }
 
     function test_RevertWhen_SenderIsNotOwner() public {
-        vm.expectRevert(bytes("Not authorized"));
+        vm.expectRevert(BaseToken.BaseToken_NotAuthorized.selector);
         ownerToken.setMaxSupply(1000);
     }
 
@@ -59,7 +60,7 @@ contract SetSignerPublicKeyTest is OwnerTokenTest {
     }
 
     function test_RevertWhen_SenderIsNotOwner() public {
-        vm.expectRevert(bytes("Not authorized"));
+        vm.expectRevert(BaseToken.BaseToken_NotAuthorized.selector);
         ownerToken.setSignerPublicKey(bytes("some key"));
     }
 
@@ -81,7 +82,7 @@ contract MintToTest is OwnerTokenTest {
         accounts[0] = makeAddr("anotherAccount");
 
         vm.startPrank(deployer);
-        vm.expectRevert(bytes("MAX_SUPPLY_REACHED"));
+        vm.expectRevert(BaseToken.BaseToken_MaxSupplyReached.selector);
         ownerToken.mintTo(accounts);
     }
 }
@@ -93,7 +94,7 @@ contract RemoteBurnTest is OwnerTokenTest {
 
     function test_RevertWhen_RemoteBurn() public {
         vm.startPrank(deployer);
-        vm.expectRevert(bytes("NOT_REMOTE_BURNABLE"));
+        vm.expectRevert(BaseToken.BaseToken_NotRemoteBurnable.selector);
         uint256[] memory ids = new uint256[](1);
         ids[0] = 0;
         ownerToken.remoteBurn(ids);

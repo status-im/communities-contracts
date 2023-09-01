@@ -49,7 +49,7 @@ contract SetMaxSupplyTest is CommunityERC20Test {
         amounts[2] = 5;
         amounts[3] = 20;
         communityToken.mintTo(accounts, amounts); // totalSupply is now 50
-        vm.expectRevert(bytes("MAX_SUPPLY_LOWER_THAN_TOTAL_SUPPLY"));
+        vm.expectRevert(CommunityERC20.CommunityERC20_MaxSupplyLowerThanTotalSupply.selector);
         communityToken.setMaxSupply(40);
     }
 
@@ -70,7 +70,7 @@ contract MintToTest is CommunityERC20Test {
         amounts[1] = 15;
         amounts[2] = 5;
 
-        vm.expectRevert(bytes("WRONG_LENGTHS"));
+        vm.expectRevert(CommunityERC20.CommunityERC20_MismatchingAddressesAndAmountsLengths.selector);
         communityToken.mintTo(accounts, amounts);
     }
 
@@ -81,7 +81,7 @@ contract MintToTest is CommunityERC20Test {
         amounts[2] = 25;
         amounts[3] = 1; // this should exceed max supply
 
-        vm.expectRevert(bytes("MAX_SUPPLY_REACHED"));
+        vm.expectRevert(CommunityERC20.CommunityERC20_MaxSupplyReached.selector);
         communityToken.mintTo(accounts, amounts);
     }
 }

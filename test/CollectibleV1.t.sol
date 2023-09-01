@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import { Test } from "forge-std/Test.sol";
 import { DeployOwnerAndMasterToken } from "../script/DeployOwnerAndMasterToken.s.sol";
 import { DeploymentConfig } from "../script/DeploymentConfig.s.sol";
+import { BaseToken } from "../contracts/tokens/BaseToken.sol";
 import { OwnerToken } from "../contracts/tokens/OwnerToken.sol";
 import { MasterToken } from "../contracts/tokens/MasterToken.sol";
 import { CollectibleV1 } from "../contracts/tokens/CollectibleV1.sol";
@@ -59,7 +60,7 @@ contract MintToTest is CollectibleV1Test {
     }
 
     function test_RevertWhen_SenderIsNotOwner() public {
-        vm.expectRevert(bytes("Not authorized"));
+        vm.expectRevert(BaseToken.BaseToken_NotAuthorized.selector);
         collectibleV1.mintTo(accounts);
     }
 
@@ -69,7 +70,7 @@ contract MintToTest is CollectibleV1Test {
 
         address[] memory otherAddresses = new address[](1);
         otherAddresses[0] = makeAddr("anotherAccount");
-        vm.expectRevert(bytes("MAX_SUPPLY_REACHED"));
+        vm.expectRevert(BaseToken.BaseToken_MaxSupplyReached.selector);
         collectibleV1.mintTo(otherAddresses);
 
         assertEq(collectibleV1.maxSupply(), maxSupply);
@@ -97,7 +98,7 @@ contract RemoteBurnTest is CollectibleV1Test {
     function test_RevertWhen_SenderIsNotOwner() public {
         uint256[] memory ids = new uint256[](1);
         ids[0] = 0;
-        vm.expectRevert(bytes("Not authorized"));
+        vm.expectRevert(BaseToken.BaseToken_NotAuthorized.selector);
         collectibleV1.remoteBurn(ids);
     }
 

@@ -11,6 +11,13 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 abstract contract BaseToken is Context, ERC721Enumerable {
     using Counters for Counters.Counter;
 
+    error BaseToken_InvalidTokenAddress();
+    error BaseToken_NotAuthorized();
+    error BaseToken_MaxSupplyLowerThanTotalSupply();
+    error BaseToken_MaxSupplyReached();
+    error BaseToken_NotRemoteBurnable();
+    error BaseToken_NotTransferable();
+
     // State variables
 
     Counters.Counter private _tokenIdTracker;
@@ -54,16 +61,18 @@ abstract contract BaseToken is Context, ERC721Enumerable {
         ownerToken = _ownerToken;
         masterToken = _masterToken;
 
-        require(ownerToken != address(0x0) || masterToken != address(0x0), "owner or master tokens required");
+        if (ownerToken == address(0) && masterToken == address(0)) {
+            revert BaseToken_InvalidTokenAddress();
+        }
     }
 
     modifier onlyOwner() {
-        require(
-            (ownerToken == address(0) || IERC721(ownerToken).balanceOf(msg.sender) > 0)
-                || (masterToken == address(0) || IERC721(masterToken).balanceOf(msg.sender) > 0),
-            "Not authorized"
-        );
-
+        if (
+            (ownerToken != address(0) && IERC721(ownerToken).balanceOf(msg.sender) == 0)
+                && (masterToken != address(0) && IERC721(masterToken).balanceOf(msg.sender) == 0)
+        ) {
+            revert BaseToken_NotAuthorized();
+        }
         _;
     }
 
@@ -72,7 +81,9 @@ abstract contract BaseToken is Context, ERC721Enumerable {
     // External functions
 
     function setMaxSupply(uint256 newMaxSupply) external virtual onlyOwner {
-        require(newMaxSupply >= totalSupply(), "MAX_SUPPLY_LOWER_THAN_TOTAL_SUPPLY");
+        if (newMaxSupply < totalSupply()) {
+            revert BaseToken_MaxSupplyLowerThanTotalSupply();
+        }
         maxSupply = newMaxSupply;
     }
 
@@ -83,7 +94,9 @@ abstract contract BaseToken is Context, ERC721Enumerable {
      *
      */
     function mintTo(address[] memory addresses) public onlyOwner {
-        require(_tokenIdTracker.current() + addresses.length <= maxSupply, "MAX_SUPPLY_REACHED");
+        if (_tokenIdTracker.current() + addresses.length > maxSupply) {
+            revert BaseToken_MaxSupplyReached();
+        }
         _mintTo(addresses);
     }
 
@@ -98,7 +111,7 @@ abstract contract BaseToken is Context, ERC721Enumerable {
      * @param tokenIds The list of token IDs to be burned
      */
     function remoteBurn(uint256[] memory tokenIds) public onlyOwner {
-        require(remoteBurnable, "NOT_REMOTE_BURNABLE");
+        if (!remoteBurnable) revert BaseToken_NotRemoteBurnable();
 
         for (uint256 i = 0; i < tokenIds.length; i++) {
             _burn(tokenIds[i]);
@@ -146,7 +159,7 @@ abstract contract BaseToken is Context, ERC721Enumerable {
         override(ERC721Enumerable)
     {
         if (from != address(0) && to != address(0) && !transferable) {
-            revert("not transferable");
+            revert BaseToken_NotTransferable();
         }
         super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
     }
