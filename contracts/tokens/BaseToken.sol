@@ -27,18 +27,18 @@ abstract contract BaseToken is Context, ERC721Enumerable {
      */
     uint256 public maxSupply;
 
-    address public ownerToken;
-    address public masterToken;
+    address public immutable ownerToken;
+    address public immutable masterToken;
 
     /**
      * If set to true, the contract owner can burn any token.
      */
-    bool public remoteBurnable;
+    bool public immutable remoteBurnable;
 
     /**
      * If set to false it acts as a soulbound token.
      */
-    bool public transferable;
+    bool public immutable transferable;
 
     string public baseTokenURI;
 
