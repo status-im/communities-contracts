@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import { ITokenFactory } from "../interfaces/ITokenFactory.sol";
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 /**
  * @title BaseTokenFactory contract
@@ -15,7 +15,7 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
  *
  * @dev Other factory contract inherit from this contract.
  */
-abstract contract BaseTokenFactory is ITokenFactory, Ownable {
+abstract contract BaseTokenFactory is ITokenFactory, Ownable2Step {
     error BaseTokenFactory_InvalidTokenDeployerAddress();
     error BaseTokenFactory_NotAuthorized();
     error BaseTokenFactory_InvalidTokenMetadata();
