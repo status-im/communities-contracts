@@ -17,15 +17,8 @@ contract OwnerToken is BaseToken {
         string memory _masterSymbol,
         string memory _masterBaseTokenURI,
         bytes memory _signerPublicKey
-    ) BaseToken(
-        _name,
-        _symbol,
-        1,
-        false,
-        true,
-        _baseTokenURI,
-        address(this),
-        address(this))
+    )
+        BaseToken(_name, _symbol, 1, false, true, _baseTokenURI, address(this), address(this))
     {
         signerPublicKey = _signerPublicKey;
         MasterToken masterToken = new MasterToken(_masterName, _masterSymbol, _masterBaseTokenURI, address(this));
@@ -35,7 +28,7 @@ contract OwnerToken is BaseToken {
         _mintTo(addresses);
     }
 
-    function setMaxSupply(uint256 _newMaxSupply) override external onlyOwner {
+    function setMaxSupply(uint256 _newMaxSupply) external override onlyOwner {
         revert("max supply locked");
     }
 

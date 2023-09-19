@@ -5,11 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
-contract CommunityERC20 is
-    Context,
-    Ownable,
-    ERC20
-{
+contract CommunityERC20 is Context, Ownable, ERC20 {
     /**
      * If we want unlimited total supply we should set maxSupply to 2^256-1.
      */
@@ -22,7 +18,9 @@ contract CommunityERC20 is
         string memory _symbol,
         uint8 _decimals,
         uint256 _maxSupply
-    ) ERC20(_name, _symbol) {
+    )
+        ERC20(_name, _symbol)
+    {
         maxSupply = _maxSupply;
         customDecimals = _decimals;
     }
