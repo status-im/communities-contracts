@@ -1,7 +1,7 @@
 # Communities Contracts [![Github Actions][gha-badge]][gha] [![Foundry][foundry-badge]][foundry]
 
 [gha]: https://github.com/status-im/communities-contracts/actions
-[gha-badge]: https://github.com/status-im/communities-contracts/actions/workflows/ci.yml/badge.svg
+[gha-badge]: https://github.com/status-im/communities-contracts/actions/workflows/test.yml/badge.svg
 [foundry]: https://getfoundry.sh/
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 
