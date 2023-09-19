@@ -1,7 +1,9 @@
-# Communities Contracts [![Github Actions][gha-badge]][gha] [![Foundry][foundry-badge]][foundry]
+# Communities Contracts [![Github Actions][gha-badge]][gha] [![Codecov][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry]
 
 [gha]: https://github.com/status-im/communities-contracts/actions
 [gha-badge]: https://github.com/status-im/communities-contracts/actions/workflows/test.yml/badge.svg
+[codecov]: https://codecov.io/gh/status-im/communities-contracts
+[codecov-badge]: https://codecov.io/gh/status-im/communities-contracts/graph/badge.svg
 [foundry]: https://getfoundry.sh/
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 
