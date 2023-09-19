@@ -2,14 +2,11 @@
 pragma solidity ^0.8.17;
 
 import { Test } from "forge-std/Test.sol";
-import { DeployOwnerToken } from "../script/DeployOwnerToken.s.sol";
-import { DeploymentConfig } from "../script/DeploymentConfig.s.sol";
-import { CommunityERC20 } from "../contracts/CommunityERC20.sol";
+import { CommunityERC20 } from "../contracts/tokens/CommunityERC20.sol";
 
 contract CommunityERC20Test is Test {
     CommunityERC20 internal communityToken;
 
-    address internal deployer;
     address[] internal accounts = new address[](4);
 
     string internal name = "Test";
@@ -18,10 +15,6 @@ contract CommunityERC20Test is Test {
     uint8 internal decimals = 18;
 
     function setUp() public virtual {
-        DeployOwnerToken deployment = new DeployOwnerToken();
-        (,, DeploymentConfig deploymentConfig) = deployment.run();
-        deployer = deploymentConfig.deployer();
-
         communityToken = new CommunityERC20(name, symbol, decimals, maxSupply);
 
         accounts[0] = makeAddr("one");

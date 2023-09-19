@@ -48,4 +48,11 @@ contract DeploymentConfig is Script {
     function getMasterTokenConfig() public view returns (TokenConfig memory) {
         return masterTokenConfig;
     }
+
+    // This function is a hack to have it excluded by `forge coverage` until
+    // https://github.com/foundry-rs/foundry/issues/2988 is fixed.
+    // See: https://github.com/foundry-rs/foundry/issues/2988#issuecomment-1437784542
+    // for more info.
+    // solhint-disable-next-line
+    function test() public { }
 }

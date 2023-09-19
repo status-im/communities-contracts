@@ -2,10 +2,10 @@
 pragma solidity ^0.8.17;
 
 import { Test } from "forge-std/Test.sol";
-import { DeployOwnerToken } from "../script/DeployOwnerToken.s.sol";
+import { DeployOwnerAndMasterToken } from "../script/DeployOwnerAndMasterToken.s.sol";
 import { DeploymentConfig } from "../script/DeploymentConfig.s.sol";
-import { OwnerToken } from "../contracts/OwnerToken.sol";
-import { MasterToken } from "../contracts/MasterToken.sol";
+import { OwnerToken } from "../contracts/tokens/OwnerToken.sol";
+import { MasterToken } from "../contracts/tokens/MasterToken.sol";
 
 contract OwnerTokenTest is Test {
     OwnerToken internal ownerToken;
@@ -14,7 +14,7 @@ contract OwnerTokenTest is Test {
     address internal deployer;
 
     function setUp() public virtual {
-        DeployOwnerToken deployment = new DeployOwnerToken();
+        DeployOwnerAndMasterToken deployment = new DeployOwnerAndMasterToken();
         (ownerToken, masterToken, deploymentConfig) = deployment.run();
         deployer = deploymentConfig.deployer();
     }
