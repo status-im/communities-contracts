@@ -6,6 +6,10 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
 contract CommunityERC20 is Context, Ownable, ERC20 {
+    error CommunityERC20_MaxSupplyLowerThanTotalSupply();
+    error CommunityERC20_MaxSupplyReached();
+    error CommunityERC20_MismatchingAddressesAndAmountsLengths();
+
     /**
      * If we want unlimited total supply we should set maxSupply to 2^256-1.
      */
@@ -30,7 +34,9 @@ contract CommunityERC20 is Context, Ownable, ERC20 {
     // External functions
 
     function setMaxSupply(uint256 newMaxSupply) external onlyOwner {
-        require(newMaxSupply >= totalSupply(), "MAX_SUPPLY_LOWER_THAN_TOTAL_SUPPLY");
+        if (newMaxSupply < totalSupply()) {
+            revert CommunityERC20_MaxSupplyLowerThanTotalSupply();
+        }
         maxSupply = newMaxSupply;
     }
 
@@ -40,11 +46,15 @@ contract CommunityERC20 is Context, Ownable, ERC20 {
      *
      */
     function mintTo(address[] memory addresses, uint256[] memory amounts) external onlyOwner {
-        require(addresses.length == amounts.length, "WRONG_LENGTHS");
+        if (addresses.length != amounts.length) {
+            revert CommunityERC20_MismatchingAddressesAndAmountsLengths();
+        }
 
         for (uint256 i = 0; i < addresses.length; i++) {
             uint256 amount = amounts[i];
-            require(totalSupply() + amount <= maxSupply, "MAX_SUPPLY_REACHED");
+            if (totalSupply() + amount > maxSupply) {
+                revert CommunityERC20_MaxSupplyReached();
+            }
             _mint(addresses[i], amount);
         }
     }
