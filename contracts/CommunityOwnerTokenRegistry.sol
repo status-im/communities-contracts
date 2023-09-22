@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import { IAddressRegistry } from "./interfaces/IAddressRegistry.sol";
 import { OwnerToken } from "./tokens/OwnerToken.sol";
 
@@ -24,7 +24,7 @@ import { OwnerToken } from "./tokens/OwnerToken.sol";
  * registry contract.
  * @dev Only `tokenDeployer` can add entries to the registry.
  */
-contract CommunityOwnerTokenRegistry is IAddressRegistry, Ownable {
+contract CommunityOwnerTokenRegistry is IAddressRegistry, Ownable2Step {
     error CommunityOwnerTokenRegistry_NotAuthorized();
     error CommunityOwnerTokenRegistry_EntryAlreadyExists();
     error CommunityOwnerTokenRegistry_InvalidAddress();

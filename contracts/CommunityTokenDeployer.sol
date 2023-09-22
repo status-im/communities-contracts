@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.17;
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { EIP712 } from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import { ITokenFactory } from "./interfaces/ITokenFactory.sol";
@@ -39,7 +39,7 @@ import { IAddressRegistry } from "./interfaces/IAddressRegistry.sol";
  * @dev The `CommunityOwnerTokenFactory` address can be changed by the owner of this contract.
  * @dev The `CommunityMasterTokenFactory` address can be changed by the owner of this contract.
  */
-contract CommunityTokenDeployer is EIP712("CommunityTokenDeployer", "1"), Ownable {
+contract CommunityTokenDeployer is EIP712("CommunityTokenDeployer", "1"), Ownable2Step {
     using ECDSA for bytes32;
 
     error CommunityTokenDeployer_InvalidDeploymentRegistryAddress();
