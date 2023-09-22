@@ -20,13 +20,11 @@ contract DeploymentConfig is Script {
     address public immutable deployer;
 
     constructor(address _broadcaster) {
-        if (block.chainid == 31_337) {
-            (ownerTokenConfig, masterTokenConfig) = getOrCreateAnvilEthConfig();
-        } else {
-            revert("no network config for this chain");
-        }
         if (_broadcaster == address(0)) revert DeploymentConfig_InvalidDeployerAddress();
         deployer = _broadcaster;
+        if (block.chainid == 31_337) {
+            (ownerTokenConfig, masterTokenConfig) = getOrCreateAnvilEthConfig();
+        }
     }
 
     function getOrCreateAnvilEthConfig() public pure returns (TokenConfig memory, TokenConfig memory) {
