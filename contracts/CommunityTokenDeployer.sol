@@ -54,6 +54,8 @@ contract CommunityTokenDeployer is EIP712("CommunityTokenDeployer", "1"), Ownabl
     event OwnerTokenFactoryAddressChange(address indexed);
     event MasterTokenFactoryAddressChange(address indexed);
     event DeploymentRegistryAddressChange(address indexed);
+    event DeployOwnerToken(address indexed);
+    event DeployMasterToken(address indexed);
 
     /// @dev Needed to avoid "Stack too deep" error.
     struct TokenConfig {
@@ -107,6 +109,8 @@ contract CommunityTokenDeployer is EIP712("CommunityTokenDeployer", "1"), Ownabl
      * @dev Anyone can call this function but a valid EIP712 hash signature has to be
      * provided for a successful deployment.
      * @dev Emits {CreateToken} events via underlying token factories.
+     * @dev Emits {DeployOwnerToken} event.
+     * @dev Emits {DeployMasterToken} event.
      *
      * @param _ownerToken A `TokenConfig` containing ERC721 metadata for `OwnerToken`
      * @param _masterToken A `TokenConfig` containing ERC721 metadata for `MasterToken`
@@ -144,9 +148,13 @@ contract CommunityTokenDeployer is EIP712("CommunityTokenDeployer", "1"), Ownabl
             _ownerToken.name, _ownerToken.symbol, _ownerToken.baseURI, msg.sender, _signerPublicKey
         );
 
+        emit DeployOwnerToken(ownerToken);
+
         address masterToken = ITokenFactory(masterTokenFactory).create(
             _masterToken.name, _masterToken.symbol, _masterToken.baseURI, ownerToken, bytes("")
         );
+
+        emit DeployMasterToken(masterToken);
 
         IAddressRegistry(deploymentRegistry).addEntry(_signature.signer, ownerToken);
         return (ownerToken, masterToken);
