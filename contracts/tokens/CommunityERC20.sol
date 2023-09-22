@@ -15,7 +15,7 @@ contract CommunityERC20 is Context, Ownable, ERC20 {
      */
     uint256 public maxSupply;
 
-    uint8 private customDecimals;
+    uint8 private immutable customDecimals;
 
     constructor(
         string memory _name,
