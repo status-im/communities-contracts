@@ -11,6 +11,16 @@ Smart contracts for access control and token gated Status communities.
 
 This projects implements smart contracts that are used by Status to enable token gated communities and access control for various roles within communities.
 
+# Deployments
+
+| **Contract**                | **Address**                                                                                                                             | **Snapshot**                                                                                                      |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **Optimism Goerli**         |                                                                                                                                         |                                                                                                                   |
+| CommunityTokenDeployer      | [`0xfFa8A255D905c909379859eA45B959D090DDC2d4`](https://goerli-optimism.etherscan.io/address/0xfFa8A255D905c909379859eA45B959D090DDC2d4) | [`e7d799b76`](https://github.com/status-im/communities-contracts/commit/e7d799b761e87166ecee4efaaede0b7a6cc367ad) |
+| CommunityOwnerTokenRegistry | [`0x99F0Eeb7E9F1Da6CA9DDf77dD7810B665FD85750`](https://goerli-optimism.etherscan.io/address/0x99F0Eeb7E9F1Da6CA9DDf77dD7810B665FD85750) | [`e7d799b76`](https://github.com/status-im/communities-contracts/commit/e7d799b761e87166ecee4efaaede0b7a6cc367ad) |
+| CommunityOwnerTokenFactory  | [`0x76d0E484e7c3398922636960Ab33bDe6E9936D81`](https://goerli-optimism.etherscan.io/address/0x76d0E484e7c3398922636960Ab33bDe6E9936D81) | [`e7d799b76`](https://github.com/status-im/communities-contracts/commit/e7d799b761e87166ecee4efaaede0b7a6cc367ad) |
+| CommunityMasterTokenFactory | [`0x420BE6568c6E09782CEAE1575495Cd6C1c7EA04D`](https://goerli-optimism.etherscan.io/address/0x420BE6568c6E09782CEAE1575495Cd6C1c7EA04D) | [`e7d799b76`](https://github.com/status-im/communities-contracts/commit/e7d799b761e87166ecee4efaaede0b7a6cc367ad) |
+
 # Documentation
 
 ## Table of Contents
