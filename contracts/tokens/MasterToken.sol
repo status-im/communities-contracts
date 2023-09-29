@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Mozilla Public License 2.0
 pragma solidity ^0.8.17;
 
-import "./BaseToken.sol";
+import { BaseToken } from "./BaseToken.sol";
 
 contract MasterToken is BaseToken {
     constructor(
