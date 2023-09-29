@@ -11,6 +11,15 @@ contract CommunityERC20 is Context, Ownable, ERC20, CommunityOwnable {
     error CommunityERC20_MaxSupplyReached();
     error CommunityERC20_MismatchingAddressesAndAmountsLengths();
 
+    /// @notice Emits a custom mint event for Status applications to listen to
+    /// @dev This is doubling the {Transfer} event from ERC20 but we need to emit this
+    /// so Status applications have a way to easily distinguish between transactions that have
+    /// a similar event footprint but are semantically different.
+    /// @param from The address that minted the token
+    /// @param to The address that received the token
+    /// @param amount The amount that was minted
+    event StatusMint(address indexed from, address indexed to, uint256 indexed amount);
+
     /**
      * If we want unlimited total supply we should set maxSupply to 2^256-1.
      */
@@ -60,6 +69,7 @@ contract CommunityERC20 is Context, Ownable, ERC20, CommunityOwnable {
                 revert CommunityERC20_MaxSupplyReached();
             }
             _mint(addresses[i], amount);
+            emit StatusMint(address(0), addresses[i], amount);
         }
     }
 

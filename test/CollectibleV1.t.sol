@@ -56,6 +56,8 @@ contract CollectibleV1Test is Test {
 }
 
 contract MintToTest is CollectibleV1Test {
+    event StatusMint(address indexed from, address indexed to, uint256 indexed tokenId);
+
     function setUp() public virtual override {
         CollectibleV1Test.setUp();
     }
@@ -84,6 +86,10 @@ contract MintToTest is CollectibleV1Test {
             assertEq(collectibleV1.balanceOf(accounts[i]), 0);
         }
         vm.prank(deployer);
+        for (uint8 i = 0; i < length; i++) {
+            vm.expectEmit(true, true, true, true);
+            emit StatusMint(address(0), accounts[i], i);
+        }
         collectibleV1.mintTo(accounts);
         for (uint8 i = 0; i < length; i++) {
             assertEq(collectibleV1.balanceOf(accounts[i]), 1);
