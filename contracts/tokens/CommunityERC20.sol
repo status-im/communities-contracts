@@ -4,8 +4,9 @@ pragma solidity ^0.8.17;
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { Context } from "@openzeppelin/contracts/utils/Context.sol";
+import { CommunityOwnable } from "../CommunityOwnable.sol";
 
-contract CommunityERC20 is Context, Ownable, ERC20 {
+contract CommunityERC20 is Context, Ownable, ERC20, CommunityOwnable {
     error CommunityERC20_MaxSupplyLowerThanTotalSupply();
     error CommunityERC20_MaxSupplyReached();
     error CommunityERC20_MismatchingAddressesAndAmountsLengths();
@@ -21,9 +22,12 @@ contract CommunityERC20 is Context, Ownable, ERC20 {
         string memory _name,
         string memory _symbol,
         uint8 _decimals,
-        uint256 _maxSupply
+        uint256 _maxSupply,
+        address _ownerToken,
+        address _masterToken
     )
         ERC20(_name, _symbol)
+        CommunityOwnable(_ownerToken, _masterToken)
     {
         maxSupply = _maxSupply;
         customDecimals = _decimals;
@@ -33,7 +37,7 @@ contract CommunityERC20 is Context, Ownable, ERC20 {
 
     // External functions
 
-    function setMaxSupply(uint256 newMaxSupply) external onlyOwner {
+    function setMaxSupply(uint256 newMaxSupply) external onlyCommunityOwnerOrTokenMaster {
         if (newMaxSupply < totalSupply()) {
             revert CommunityERC20_MaxSupplyLowerThanTotalSupply();
         }
@@ -45,7 +49,7 @@ contract CommunityERC20 is Context, Ownable, ERC20 {
      * an amount specified in `amounts`.
      *
      */
-    function mintTo(address[] memory addresses, uint256[] memory amounts) external onlyOwner {
+    function mintTo(address[] memory addresses, uint256[] memory amounts) external onlyCommunityOwnerOrTokenMaster {
         if (addresses.length != amounts.length) {
             revert CommunityERC20_MismatchingAddressesAndAmountsLengths();
         }

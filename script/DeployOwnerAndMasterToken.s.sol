@@ -15,18 +15,18 @@ contract DeployOwnerAndMasterToken is BaseScript {
 
         vm.startBroadcast(broadcaster);
         OwnerToken ownerToken = new OwnerToken(
-          ownerTokenConfig.name,
-          ownerTokenConfig.symbol,
-          ownerTokenConfig.baseURI,
-          broadcaster,
-          ownerTokenConfig.signerPublicKey
+            ownerTokenConfig.name,
+            ownerTokenConfig.symbol,
+            ownerTokenConfig.baseURI,
+            broadcaster,
+            ownerTokenConfig.signerPublicKey
         );
 
         MasterToken masterToken = new MasterToken(
-          masterTokenConfig.name,
-          masterTokenConfig.symbol,
-          masterTokenConfig.baseURI,
-          address(ownerToken)
+            masterTokenConfig.name,
+            masterTokenConfig.symbol,
+            masterTokenConfig.baseURI,
+            address(ownerToken)
         );
         vm.stopBroadcast();
 

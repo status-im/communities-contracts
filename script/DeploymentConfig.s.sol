@@ -20,7 +20,9 @@ contract DeploymentConfig is Script {
     address public immutable deployer;
 
     constructor(address _broadcaster) {
-        if (_broadcaster == address(0)) revert DeploymentConfig_InvalidDeployerAddress();
+        if (_broadcaster == address(0)) {
+            revert DeploymentConfig_InvalidDeployerAddress();
+        }
         deployer = _broadcaster;
         if (block.chainid == 31_337) {
             (ownerTokenConfig, masterTokenConfig) = getOrCreateAnvilEthConfig();
