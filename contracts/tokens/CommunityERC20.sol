@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Mozilla Public License 2.0
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { Context } from "@openzeppelin/contracts/utils/Context.sol";
 
 contract CommunityERC20 is Context, Ownable, ERC20 {
     error CommunityERC20_MaxSupplyLowerThanTotalSupply();
