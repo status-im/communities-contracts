@@ -3,11 +3,17 @@ pragma solidity ^0.8.17;
 
 import { Test } from "forge-std/Test.sol";
 import { CommunityERC20 } from "../contracts/tokens/CommunityERC20.sol";
+import { DeploymentConfig } from "../script/DeploymentConfig.s.sol";
+import { DeployOwnerAndMasterToken } from "../script/DeployOwnerAndMasterToken.s.sol";
+import { OwnerToken } from "../contracts/tokens/OwnerToken.sol";
+import { MasterToken } from "../contracts/tokens/MasterToken.sol";
+import { CommunityOwnable } from "../contracts/CommunityOwnable.sol";
 
 contract CommunityERC20Test is Test {
     CommunityERC20 internal communityToken;
 
     address[] internal accounts = new address[](4);
+    address internal deployer;
 
     string internal name = "Test";
     string internal symbol = "TEST";
@@ -15,7 +21,19 @@ contract CommunityERC20Test is Test {
     uint8 internal decimals = 18;
 
     function setUp() public virtual {
-        communityToken = new CommunityERC20(name, symbol, decimals, maxSupply);
+        DeployOwnerAndMasterToken deployment = new DeployOwnerAndMasterToken();
+        (OwnerToken ownerToken, MasterToken masterToken, DeploymentConfig deploymentConfig) = deployment.run();
+
+        deployer = deploymentConfig.deployer();
+
+        communityToken = new CommunityERC20(
+            name,
+            symbol,
+            decimals,
+            maxSupply,
+            address(ownerToken),
+            address(masterToken)
+        );
 
         accounts[0] = makeAddr("one");
         accounts[1] = makeAddr("two");
@@ -38,7 +56,7 @@ contract SetMaxSupplyTest is CommunityERC20Test {
 
     function test_RevertWhen_SenderIsNotOwner() public {
         vm.prank(makeAddr("notOwner"));
-        vm.expectRevert(bytes("Ownable: caller is not the owner"));
+        vm.expectRevert(CommunityOwnable.CommunityOwnable_NotAuthorized.selector);
         communityToken.setMaxSupply(1000);
     }
 
@@ -48,12 +66,18 @@ contract SetMaxSupplyTest is CommunityERC20Test {
         amounts[1] = 15;
         amounts[2] = 5;
         amounts[3] = 20;
+
+        vm.startPrank(deployer);
+
         communityToken.mintTo(accounts, amounts); // totalSupply is now 50
         vm.expectRevert(CommunityERC20.CommunityERC20_MaxSupplyLowerThanTotalSupply.selector);
         communityToken.setMaxSupply(40);
+
+        vm.stopPrank();
     }
 
     function test_SetMaxSupply() public {
+        vm.prank(deployer);
         communityToken.setMaxSupply(1000);
         assertEq(communityToken.maxSupply(), 1000);
     }
@@ -71,6 +95,7 @@ contract MintToTest is CommunityERC20Test {
         amounts[2] = 5;
 
         vm.expectRevert(CommunityERC20.CommunityERC20_MismatchingAddressesAndAmountsLengths.selector);
+        vm.prank(deployer);
         communityToken.mintTo(accounts, amounts);
     }
 
@@ -82,6 +107,7 @@ contract MintToTest is CommunityERC20Test {
         amounts[3] = 1; // this should exceed max supply
 
         vm.expectRevert(CommunityERC20.CommunityERC20_MaxSupplyReached.selector);
+        vm.prank(deployer);
         communityToken.mintTo(accounts, amounts);
     }
 }

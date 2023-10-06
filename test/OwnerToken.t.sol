@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import { Test } from "forge-std/Test.sol";
 import { DeployOwnerAndMasterToken } from "../script/DeployOwnerAndMasterToken.s.sol";
 import { DeploymentConfig } from "../script/DeploymentConfig.s.sol";
+import { CommunityOwnable } from "../contracts/CommunityOwnable.sol";
 import { BaseToken } from "../contracts/tokens/BaseToken.sol";
 import { OwnerToken } from "../contracts/tokens/OwnerToken.sol";
 import { MasterToken } from "../contracts/tokens/MasterToken.sol";
@@ -43,7 +44,7 @@ contract SetMaxSupplyTest is OwnerTokenTest {
     }
 
     function test_RevertWhen_SenderIsNotOwner() public {
-        vm.expectRevert(BaseToken.BaseToken_NotAuthorized.selector);
+        vm.expectRevert(CommunityOwnable.CommunityOwnable_NotAuthorized.selector);
         ownerToken.setMaxSupply(1000);
     }
 
@@ -60,7 +61,7 @@ contract SetSignerPublicKeyTest is OwnerTokenTest {
     }
 
     function test_RevertWhen_SenderIsNotOwner() public {
-        vm.expectRevert(BaseToken.BaseToken_NotAuthorized.selector);
+        vm.expectRevert(CommunityOwnable.CommunityOwnable_NotAuthorized.selector);
         ownerToken.setSignerPublicKey(bytes("some key"));
     }
 

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 
 import { BaseToken } from "./BaseToken.sol";
+import { CommunityOwnable } from "../CommunityOwnable.sol";
 
 contract OwnerToken is BaseToken {
     bytes public signerPublicKey;
@@ -21,11 +22,11 @@ contract OwnerToken is BaseToken {
         _mintTo(addresses);
     }
 
-    function setMaxSupply(uint256 _newMaxSupply) external override onlyOwner {
+    function setMaxSupply(uint256 _newMaxSupply) external override onlyCommunityOwnerOrTokenMaster {
         revert("max supply locked");
     }
 
-    function setSignerPublicKey(bytes memory _newSignerPublicKey) external onlyOwner {
+    function setSignerPublicKey(bytes memory _newSignerPublicKey) external onlyCommunityOwnerOrTokenMaster {
         signerPublicKey = _newSignerPublicKey;
     }
 }

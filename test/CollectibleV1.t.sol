@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import { Test } from "forge-std/Test.sol";
 import { DeployOwnerAndMasterToken } from "../script/DeployOwnerAndMasterToken.s.sol";
 import { DeploymentConfig } from "../script/DeploymentConfig.s.sol";
+import { CommunityOwnable } from "../contracts/CommunityOwnable.sol";
 import { BaseToken } from "../contracts/tokens/BaseToken.sol";
 import { OwnerToken } from "../contracts/tokens/OwnerToken.sol";
 import { MasterToken } from "../contracts/tokens/MasterToken.sol";
@@ -31,7 +32,7 @@ contract CollectibleV1Test is Test {
           name,
           symbol,
           maxSupply,
-          remoteBurnable, 
+          remoteBurnable,
           transferable,
           baseURI,
           address(ownerToken),
@@ -60,7 +61,7 @@ contract MintToTest is CollectibleV1Test {
     }
 
     function test_RevertWhen_SenderIsNotOwner() public {
-        vm.expectRevert(BaseToken.BaseToken_NotAuthorized.selector);
+        vm.expectRevert(CommunityOwnable.CommunityOwnable_NotAuthorized.selector);
         collectibleV1.mintTo(accounts);
     }
 
@@ -98,7 +99,7 @@ contract RemoteBurnTest is CollectibleV1Test {
     function test_RevertWhen_SenderIsNotOwner() public {
         uint256[] memory ids = new uint256[](1);
         ids[0] = 0;
-        vm.expectRevert(BaseToken.BaseToken_NotAuthorized.selector);
+        vm.expectRevert(CommunityOwnable.CommunityOwnable_NotAuthorized.selector);
         collectibleV1.remoteBurn(ids);
     }
 
