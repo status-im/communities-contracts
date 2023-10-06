@@ -16,6 +16,15 @@ abstract contract BaseToken is Context, ERC721Enumerable, CommunityOwnable {
     error BaseToken_NotRemoteBurnable();
     error BaseToken_NotTransferable();
 
+    /// @notice Emits a custom mint event for Status applications to listen to
+    /// @dev This is doubling the {Transfer} event from ERC721 but we need to emit this
+    /// so Status applications have a way to easily distinguish between transactions that have
+    /// a similar event footprint but are semantically different.
+    /// @param from The address that minted the token
+    /// @param to The address that received the token
+    /// @param tokenId The token ID that was minted
+    event StatusMint(address indexed from, address indexed to, uint256 indexed tokenId);
+
     // State variables
 
     Counters.Counter private _tokenIdTracker;
@@ -119,6 +128,7 @@ abstract contract BaseToken is Context, ERC721Enumerable, CommunityOwnable {
         // can be burned so we use a separate counter.
         for (uint256 i = 0; i < addresses.length; i++) {
             _safeMint(addresses[i], _tokenIdTracker.current(), "");
+            emit StatusMint(address(0), addresses[i], _tokenIdTracker.current());
             _tokenIdTracker.increment();
         }
     }

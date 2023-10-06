@@ -84,6 +84,8 @@ contract SetMaxSupplyTest is CommunityERC20Test {
 }
 
 contract MintToTest is CommunityERC20Test {
+    event StatusMint(address indexed from, address indexed to, uint256 indexed amount);
+
     function setUp() public virtual override {
         CommunityERC20Test.setUp();
     }
@@ -109,5 +111,25 @@ contract MintToTest is CommunityERC20Test {
         vm.expectRevert(CommunityERC20.CommunityERC20_MaxSupplyReached.selector);
         vm.prank(deployer);
         communityToken.mintTo(accounts, amounts);
+    }
+
+    function test_MintTo() public {
+        uint256[] memory amounts = new uint256[](4);
+        amounts[0] = 50;
+        amounts[1] = 25;
+        amounts[2] = 20;
+        amounts[3] = 5;
+
+        vm.startPrank(deployer);
+        for (uint8 i = 0; i < accounts.length; i++) {
+            vm.expectEmit(true, true, true, true);
+            emit StatusMint(address(0), accounts[i], amounts[i]);
+        }
+        communityToken.mintTo(accounts, amounts);
+
+        assertEq(communityToken.balanceOf(accounts[0]), 50);
+        assertEq(communityToken.balanceOf(accounts[1]), 25);
+        assertEq(communityToken.balanceOf(accounts[2]), 20);
+        assertEq(communityToken.balanceOf(accounts[3]), 5);
     }
 }
