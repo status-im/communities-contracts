@@ -17,6 +17,7 @@ contract CommunityERC20Test is Test {
 
     string internal name = "Test";
     string internal symbol = "TEST";
+    string internal baseURI = "http://local.dev";
     uint256 internal maxSupply = 100;
     uint8 internal decimals = 18;
 
@@ -31,6 +32,7 @@ contract CommunityERC20Test is Test {
             symbol,
             decimals,
             maxSupply,
+            baseURI,
             address(ownerToken),
             address(masterToken)
         );
@@ -46,6 +48,7 @@ contract CommunityERC20Test is Test {
         assertEq(communityToken.symbol(), symbol);
         assertEq(communityToken.maxSupply(), maxSupply);
         assertEq(communityToken.decimals(), decimals);
+        assertEq(communityToken.baseTokenURI(), baseURI);
     }
 }
 
