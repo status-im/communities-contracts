@@ -35,15 +35,7 @@ contract CommunityVaultTest is Test {
         erc20Token = new TestERC20Token();
         erc721Token = new TestERC721Token();
 
-        communityERC20Token = new CommunityERC20(
-            "Test",
-            "TEST",
-            18,
-            100,
-            "",
-            address(ownerToken),
-            address(masterToken)
-        );
+        communityERC20Token = new CommunityERC20("Test", "TST", 18, 100, "", address(ownerToken), address(masterToken));
 
         vault = new CommunityVault(address(ownerToken), address(masterToken));
 

@@ -23,10 +23,7 @@ contract DeployOwnerAndMasterToken is BaseScript {
         );
 
         MasterToken masterToken = new MasterToken(
-            masterTokenConfig.name,
-            masterTokenConfig.symbol,
-            masterTokenConfig.baseURI,
-            address(ownerToken)
+            masterTokenConfig.name, masterTokenConfig.symbol, masterTokenConfig.baseURI, address(ownerToken)
         );
         vm.stopBroadcast();
 

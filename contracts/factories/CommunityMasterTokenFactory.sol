@@ -43,12 +43,7 @@ contract CommunityMasterTokenFactory is BaseTokenFactory {
             revert CommunityMasterTokenFactory_InvalidOwnerTokenAddress();
         }
 
-        MasterToken masterToken = new MasterToken(
-          _name, 
-          _symbol, 
-          _baseURI, 
-          _ownerToken
-        );
+        MasterToken masterToken = new MasterToken(_name, _symbol, _baseURI, _ownerToken);
         emit CreateToken(address(masterToken));
         return address(masterToken);
     }

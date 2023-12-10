@@ -50,13 +50,7 @@ contract CommunityOwnerTokenFactory is BaseTokenFactory {
             revert CommunityOwnerTokenFactory_InvalidSignerPublicKey();
         }
 
-        OwnerToken ownerToken = new OwnerToken(
-          _name, 
-          _symbol, 
-          _baseURI, 
-          _receiver,
-          _signerPublicKey
-        );
+        OwnerToken ownerToken = new OwnerToken(_name, _symbol, _baseURI, _receiver, _signerPublicKey);
         emit CreateToken(address(ownerToken));
         return address(ownerToken);
     }
