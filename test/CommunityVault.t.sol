@@ -76,7 +76,7 @@ contract TransferERC20ByNonAdminTest is CommunityVaultBaseERC20Test {
         CommunityVaultBaseERC20Test.setUp();
     }
 
-    function test_revertifcalledbynonadmin() public {
+    function test_revertIfCalledByNonAdmin() public {
         assertEq(erc20Token.balanceOf(address(vault)), 10e18);
 
         uint256[] memory amounts = new uint256[](2);
