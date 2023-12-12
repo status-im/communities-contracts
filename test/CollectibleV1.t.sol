@@ -29,14 +29,7 @@ contract CollectibleV1Test is Test {
         deployer = deploymentConfig.deployer();
 
         collectibleV1 = new CollectibleV1(
-          name,
-          symbol,
-          maxSupply,
-          remoteBurnable,
-          transferable,
-          baseURI,
-          address(ownerToken),
-          address(masterToken)
+            name, symbol, maxSupply, remoteBurnable, transferable, baseURI, address(ownerToken), address(masterToken)
         );
 
         accounts[0] = makeAddr("one");

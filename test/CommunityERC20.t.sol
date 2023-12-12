@@ -27,15 +27,8 @@ contract CommunityERC20Test is Test {
 
         deployer = deploymentConfig.deployer();
 
-        communityToken = new CommunityERC20(
-            name,
-            symbol,
-            decimals,
-            maxSupply,
-            baseURI,
-            address(ownerToken),
-            address(masterToken)
-        );
+        communityToken =
+            new CommunityERC20(name, symbol, decimals, maxSupply, baseURI, address(ownerToken), address(masterToken));
 
         accounts[0] = makeAddr("one");
         accounts[1] = makeAddr("two");
