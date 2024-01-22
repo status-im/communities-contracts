@@ -68,8 +68,10 @@ abstract contract BaseToken is Context, ERC721Enumerable, CommunityOwnable {
 
     // External functions
 
-    function setMaxSupply(uint256 newMaxSupply) external virtual onlyCommunityOwnerOrTokenMaster {
-        if (newMaxSupply < totalSupply()) {
+    function setMaxSupply(
+        uint256 newMaxSupply
+    ) external virtual onlyCommunityOwnerOrTokenMaster {
+        if (newMaxSupply < mintedCount()) {
             revert BaseToken_MaxSupplyLowerThanTotalSupply();
         }
         maxSupply = newMaxSupply;
