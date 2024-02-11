@@ -82,7 +82,7 @@ abstract contract BaseToken is Context, ERC721Enumerable, CommunityOwnable {
      *
      */
     function mintTo(address[] memory addresses) public onlyCommunityOwnerOrTokenMaster {
-        if (_tokenIdTracker.current() + addresses.length > maxSupply) {
+        if (mintedCount() + addresses.length > maxSupply) {
             revert BaseToken_MaxSupplyReached();
         }
         _mintTo(addresses);

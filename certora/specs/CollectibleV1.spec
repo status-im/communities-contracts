@@ -4,36 +4,51 @@ methods {
   function transferable() external returns (bool) envfree;
   function totalSupply() external returns (uint) envfree;
   function maxSupply() external returns (uint) envfree;
+  function mintTo(address[]) external;
   function mintedCount() external returns (uint) envfree;
+  function countAddressOccurrences(address[], address) external returns (uint) envfree;
+  function _.onERC721Received(address, address, uint256, bytes) external => NONDET;
 }
 
-rule integrityOfMintTo() {
+ghost mathint sumOfBalances {
+    init_state axiom sumOfBalances == 0;
+}
+
+hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) STORAGE {
+    sumOfBalances = sumOfBalances - oldValue + newValue;
+}
+
+hook Sload uint256 balance _balances[KEY address addr] STORAGE {
+    require sumOfBalances >= to_mathint(balance);
+}
+
+invariant mintCountGreaterEqualTotalSupplyAndTotalSupplyEqBalances()
+    to_mathint(mintedCount()) >= to_mathint(totalSupply()) &&
+      to_mathint(totalSupply()) == sumOfBalances;
+
+rule integrityOfMintTo {
+  requireInvariant mintCountGreaterEqualTotalSupplyAndTotalSupplyEqBalances();
+
   address[] addresses;
-  uint index;
   env e;
 
-  require addresses.length > 0;
-  require index >= 0 && index < addresses.length;
+  mathint totalSupply_before = totalSupply();
+  mathint maxSupply = to_mathint(maxSupply());
 
+  address addr;
 
-  mathint supply_before = totalSupply();
-  mathint max_supply = maxSupply();
-  mathint minted_count = mintedCount();
+  require totalSupply_before < maxSupply;
+  require totalSupply_before + addresses.length <= maxSupply;
 
-  address a = addresses[index];
-  mathint balance_before = balanceOf(a);
-
-  require supply_before <= max_supply;
-  require minted_count >= supply_before;
-
+  mathint balance_addr_before = balanceOf(addr);
+  mathint count = countAddressOccurrences(addresses, addr);
   mintTo(e, addresses);
 
-  mathint supply_after = totalSupply();
+  mathint totalSupply_after = totalSupply();
+  mathint balance_addr_after = balanceOf(addr);
 
-  assert supply_after <= max_supply;
-  assert supply_after == supply_before + to_mathint(addresses.length);
-
-  assert to_mathint(balanceOf(a)) > balance_before;
+  assert totalSupply_after == totalSupply_before + addresses.length;
+  assert balance_addr_after == balance_addr_before + count;
 }
 
 
