@@ -4,6 +4,92 @@ methods {
   function transferable() external returns (bool) envfree;
   function totalSupply() external returns (uint) envfree;
   function maxSupply() external returns (uint) envfree;
+  function mintedCount() external returns (uint) envfree;
+}
+
+rule integrityOfMintTo() {
+  address[] addresses;
+  uint index;
+  env e;
+
+  require addresses.length > 0;
+  require index >= 0 && index < addresses.length;
+
+
+  mathint supply_before = totalSupply();
+  mathint max_supply = maxSupply();
+  mathint minted_count = mintedCount();
+
+  address a = addresses[index];
+  mathint balance_before = balanceOf(a);
+
+  require supply_before <= max_supply;
+  require minted_count >= supply_before;
+
+  mintTo(e, addresses);
+
+  mathint supply_after = totalSupply();
+
+  assert supply_after <= max_supply;
+  assert supply_after == supply_before + to_mathint(addresses.length);
+
+  assert to_mathint(balanceOf(a)) > balance_before;
+}
+
+
+//rule integrityOfMintToWithEmptyArray{
+//}
+
+
+rule mintToReverts() {
+  address[] addresses;
+  env e;
+
+  mathint supply_before = totalSupply();
+  mathint max_supply = maxSupply();
+  mathint minted_count = mintedCount();
+
+  require supply_before <= max_supply;
+  require minted_count >= supply_before;
+
+  mintTo@withrevert(e, addresses);
+
+  bool reverted = lastReverted;
+
+  assert (supply_before + addresses.length > max_supply) => reverted;
+
+  satisfy supply_before == max_supply && addresses.length > 0 && reverted;
+}
+
+rule mintToRelations() {
+  address[] addresses_1;
+  address[] addresses_2;
+  env e;
+
+  require addresses_1.length == 2;
+  require addresses_1.length == addresses_2.length;
+
+  require addresses_1[0] != addresses_1[1];
+  require addresses_1[0] == addresses_2[1];
+  require addresses_1[1] == addresses_2[0];
+
+  mathint supply_before = totalSupply();
+  mathint max_supply = maxSupply();
+  mathint minted_count = mintedCount();
+
+  require supply_before <= max_supply;
+  require minted_count >= supply_before;
+
+  address a;
+
+  storage s1 = lastStorage;
+  mintTo(e, addresses_1);
+  mathint balance_s1 = balanceOf(a);
+
+  mintTo(e, addresses_2) at s1;
+
+  mathint balance_s2 = balanceOf(a);
+  assert balance_s1 == balance_s2;
 }
 
 rule shouldPass {
