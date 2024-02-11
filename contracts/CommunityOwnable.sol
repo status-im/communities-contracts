@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.17;
 
-import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 contract CommunityOwnable {
     error CommunityOwnable_InvalidTokenAddress();
@@ -23,8 +23,10 @@ contract CommunityOwnable {
     /// @dev Reverts if the msg.sender does not possess either an OwnerToken or a MasterToken.
     modifier onlyCommunityOwnerOrTokenMaster() {
         if (
-            (ownerToken != address(0) && IERC721(ownerToken).balanceOf(msg.sender) == 0)
-                && (masterToken != address(0) && IERC721(masterToken).balanceOf(msg.sender) == 0)
+            (ownerToken != address(0) &&
+                IERC721(ownerToken).balanceOf(msg.sender) == 0) &&
+            (masterToken != address(0) &&
+                IERC721(masterToken).balanceOf(msg.sender) == 0)
         ) {
             revert CommunityOwnable_NotAuthorized();
         }
