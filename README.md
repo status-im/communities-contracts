@@ -357,10 +357,3 @@ Lint the contracts:
 $ pnpm lint
 ```
 
-### Test
-
-Run the tests:
-
-```sh
-$ forge test
-```
