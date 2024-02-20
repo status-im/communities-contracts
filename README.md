@@ -162,6 +162,7 @@ Below is a description of all community tokens that can be deployed and minted t
 - The ability to configure a maximum supply. This is used for both `MasterToken` and `CollectibleV1` tokens.
 - A `mintTo` function that allows for minting tokens to multiple addresses at once.
 - A mechanism to burn tokens "remotely". The use case here is to remove token masters or admins privileges.
+- The ability to batch transfer tokens to multiple receivers.
 
 Not all inheriting contracts make use of all of the custom functionality.
 

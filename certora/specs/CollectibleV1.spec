@@ -7,6 +7,7 @@ methods {
   function setMaxSupply(uint256 newMaxSupply) external returns (uint);
   function mintTo(address[]) external;
   function mintedCount() external returns (uint) envfree;
+  function safeBatchTransferFrom(address from, address[] to, uint256[] tokenIds, bytes data) external;
   function countAddressOccurrences(address[], address) external returns (uint) envfree;
   function _.onERC721Received(address, address, uint256, bytes) external => NONDET;
 }
@@ -128,12 +129,52 @@ rule mintToRelations() {
   assert balance_s1 == balance_s2;
 }
 
-rule shouldPass {
-  assert true;
+rule safeBatchTransferFromReverts() {
+
+  address from;
+  address[] to;
+  uint256[] tokenIds;
+  bytes data;
+  env e;
+
+  mathint supply_before = totalSupply();
+  mathint max_supply = maxSupply();
+  mathint minted_count = mintedCount();
+
+  require supply_before <= max_supply;
+  require minted_count >= supply_before;
+
+  safeBatchTransferFrom@withrevert(e, from, to, tokenIds, data);
+
+  bool reverted = lastReverted;
+
+  assert (tokenIds.length != to.length) => reverted;
 }
 
-/* rule sanity(env e, method f) { */
-/*     calldataarg args; */
-/*     f(e, args); */
-/*     assert false; */
-/* } */
+rule safeBatchTransferFromRelations() {
+  address from;
+  address[] to;
+  uint256[] tokenIds;
+  bytes data;
+  env e;
+
+  require to.length == tokenIds.length;
+
+  mathint supply_before = totalSupply();
+  mathint max_supply = maxSupply();
+  mathint minted_count = mintedCount();
+
+  require supply_before <= max_supply;
+  require minted_count >= supply_before;
+
+  address a;
+
+  storage s1 = lastStorage;
+  safeBatchTransferFrom(e, from, to, tokenIds, data);
+  mathint balance_s1 = balanceOf(a);
+
+  safeBatchTransferFrom(e, from, to, tokenIds, data) at s1;
+
+  mathint balance_s2 = balanceOf(a);
+  assert balance_s1 == balance_s2;
+}
