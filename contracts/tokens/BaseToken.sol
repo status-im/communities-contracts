@@ -15,6 +15,8 @@ abstract contract BaseToken is Context, ERC721Enumerable, CommunityOwnable {
     error BaseToken_MaxSupplyReached();
     error BaseToken_NotRemoteBurnable();
     error BaseToken_NotTransferable();
+    error BaseToken_NotAuthorized();
+    error BaseToken_ReceiversAndIdsMismatch();
 
     /// @notice Emits a custom mint event for Status applications to listen to
     /// @dev This is doubling the {Transfer} event from ERC721 but we need to emit this
@@ -134,8 +136,8 @@ abstract contract BaseToken is Context, ERC721Enumerable, CommunityOwnable {
     }
 
     /**
-     * @notice
-     * @dev
+     * @notice Overrides `ERC721Enumerable` to add a check for transferability
+     * @dev See {ERC721-_beforeTokenTransfer}.
      */
     function _beforeTokenTransfer(
         address from,
@@ -153,5 +155,37 @@ abstract contract BaseToken is Context, ERC721Enumerable, CommunityOwnable {
         super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
     }
 
+    /**
+     * @notice Batch transfers tokens by passing an array of token IDs.
+     * @dev This is simply delegates to `safeTranferFrom` for each token ID in the array.
+     */
+    function safeBatchTransferFrom(
+        address from,
+        address[] calldata receivers,
+        uint256[] calldata ids,
+        bytes memory data
+    )
+        public
+        virtual
+    {
+        _safeBatchTransferFrom(from, receivers, ids, data);
+    }
+
+    function _safeBatchTransferFrom(
+        address from,
+        address[] memory receivers,
+        uint256[] calldata ids,
+        bytes memory data
+    )
+        internal
+    {
+        if (receivers.length != ids.length) {
+            revert BaseToken_ReceiversAndIdsMismatch();
+        }
+
+        for (uint256 i = 0; i < ids.length; ++i) {
+            safeTransferFrom(from, receivers[i], ids[i], data);
+        }
+    }
     // Private functions
 }
