@@ -69,6 +69,7 @@ rule maxSupplyCannotBeLowerThanMintedCount() {
 
 rule maxSupplyNotLowerThanTotalSupply(env e, method f) {
   require maxSupply() >= totalSupply();
+  requireInvariant mintCountGreaterEqualTotalSupplyAndTotalSupplyEqBalances();
 
   calldataarg args;
   f(e, args); // call all public/external functions of a contract
