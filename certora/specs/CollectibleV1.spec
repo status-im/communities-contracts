@@ -4,7 +4,7 @@ methods {
   function transferable() external returns (bool) envfree;
   function totalSupply() external returns (uint) envfree;
   function maxSupply() external returns (uint) envfree;
-  function setMaxSupply(uint256 newMaxSupply) external returns (uint);
+  function _.setMaxSupply(uint256 newMaxSupply) external => DISPATCHER(true);
   function mintTo(address[]) external;
   function mintedCount() external returns (uint) envfree;
   function countAddressOccurrences(address[], address) external returns (uint) envfree;
