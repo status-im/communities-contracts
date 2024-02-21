@@ -2,6 +2,8 @@ name: Add PRs to review Vac task board
 
 on:
   pull_request:
+    types:
+      - opened
 
 jobs:
   add-to-project:
