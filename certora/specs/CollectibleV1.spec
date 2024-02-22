@@ -68,6 +68,7 @@ rule maxSupplyCannotBeLowerThanMintedCount() {
 }
 
 rule maxSupplyNotLowerThanTotalSupply(env e, method f) {
+  require mintedCount() >= totalSupply();
   require maxSupply() >= totalSupply();
 
   calldataarg args;
