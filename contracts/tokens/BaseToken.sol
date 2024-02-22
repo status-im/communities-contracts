@@ -69,7 +69,7 @@ abstract contract BaseToken is Context, ERC721Enumerable, CommunityOwnable {
     // External functions
 
     function setMaxSupply(uint256 newMaxSupply) external virtual onlyCommunityOwnerOrTokenMaster {
-        if (newMaxSupply < totalSupply()) {
+        if (newMaxSupply < mintedCount()) {
             revert BaseToken_MaxSupplyLowerThanTotalSupply();
         }
         maxSupply = newMaxSupply;
@@ -82,7 +82,7 @@ abstract contract BaseToken is Context, ERC721Enumerable, CommunityOwnable {
      *
      */
     function mintTo(address[] memory addresses) public onlyCommunityOwnerOrTokenMaster {
-        if (_tokenIdTracker.current() + addresses.length > maxSupply) {
+        if (mintedCount() + addresses.length > maxSupply) {
             revert BaseToken_MaxSupplyReached();
         }
         _mintTo(addresses);
