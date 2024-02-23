@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import { BaseToken } from "./BaseToken.sol";
 
-contract CollectibleV1 is BaseToken {
+contract CommunityERC721 is BaseToken {
     constructor(
         string memory _name,
         string memory _symbol,

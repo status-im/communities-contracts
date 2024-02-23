@@ -8,10 +8,10 @@ import { CommunityOwnable } from "../contracts/CommunityOwnable.sol";
 import { BaseToken } from "../contracts/tokens/BaseToken.sol";
 import { OwnerToken } from "../contracts/tokens/OwnerToken.sol";
 import { MasterToken } from "../contracts/tokens/MasterToken.sol";
-import { CollectibleV1 } from "../contracts/tokens/CollectibleV1.sol";
+import { CommunityERC721 } from "../contracts/tokens/CommunityERC721.sol";
 
-contract CollectibleV1Test is Test {
-    CollectibleV1 internal collectibleV1;
+contract CommunityERC721Test is Test {
+    CommunityERC721 internal collectibleV1;
 
     address internal deployer;
     address[] internal accounts = new address[](4);
@@ -28,7 +28,7 @@ contract CollectibleV1Test is Test {
         (OwnerToken ownerToken, MasterToken masterToken, DeploymentConfig deploymentConfig) = deployment.run();
         deployer = deploymentConfig.deployer();
 
-        collectibleV1 = new CollectibleV1(
+        collectibleV1 = new CommunityERC721(
             name, symbol, maxSupply, remoteBurnable, transferable, baseURI, address(ownerToken), address(masterToken)
         );
 
@@ -39,7 +39,7 @@ contract CollectibleV1Test is Test {
     }
 }
 
-contract DeploymentTest is CollectibleV1Test {
+contract DeploymentTest is CommunityERC721Test {
     function test_Deployment() public {
         assertEq(collectibleV1.name(), name);
         assertEq(collectibleV1.symbol(), symbol);
@@ -50,11 +50,11 @@ contract DeploymentTest is CollectibleV1Test {
     }
 }
 
-contract MintToTest is CollectibleV1Test {
+contract MintToTest is CommunityERC721Test {
     event StatusMint(address indexed from, address indexed to, uint256 indexed tokenId);
 
     function setUp() public virtual override {
-        CollectibleV1Test.setUp();
+        CommunityERC721Test.setUp();
     }
 
     function test_RevertWhen_SenderIsNotOwner() public {
@@ -92,9 +92,9 @@ contract MintToTest is CollectibleV1Test {
     }
 }
 
-contract RemoteBurnTest is CollectibleV1Test {
+contract RemoteBurnTest is CommunityERC721Test {
     function setUp() public virtual override {
-        CollectibleV1Test.setUp();
+        CommunityERC721Test.setUp();
     }
 
     function test_RevertWhen_SenderIsNotOwner() public {
@@ -119,9 +119,9 @@ contract RemoteBurnTest is CollectibleV1Test {
     }
 }
 
-contract SafeBatchTransferFromTest is CollectibleV1Test {
+contract SafeBatchTransferFromTest is CommunityERC721Test {
     function setUp() public virtual override {
-        CollectibleV1Test.setUp();
+        CommunityERC721Test.setUp();
     }
 
     function test_RevertWhen_ReceiversAndIdsMismatch() public {
@@ -233,13 +233,13 @@ contract SafeBatchTransferFromTest is CollectibleV1Test {
     }
 }
 
-contract NotTransferableTest is CollectibleV1Test {
+contract NotTransferableTest is CommunityERC721Test {
     function setUp() public virtual override {
         DeployOwnerAndMasterToken deployment = new DeployOwnerAndMasterToken();
         (OwnerToken ownerToken, MasterToken masterToken, DeploymentConfig deploymentConfig) = deployment.run();
         deployer = deploymentConfig.deployer();
 
-        collectibleV1 = new CollectibleV1(
+        collectibleV1 = new CommunityERC721(
             name, symbol, maxSupply, remoteBurnable, false, baseURI, address(ownerToken), address(masterToken)
         );
 

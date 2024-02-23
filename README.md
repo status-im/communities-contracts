@@ -74,7 +74,7 @@ This projects implements smart contracts that are used by Status to enable token
   - [BaseToken](#basetoken)
   - [Ownertoken](#ownertoken)
   - [MasterToken](#mastertoken)
-  - [CollectibleV1](#collectiblev1)
+  - [CommunityERC721](#communityerc721)
   - [CommunityERC20](#communityerc20)
 - [Deploying community tokens](#deploying-community-tokens)
   - [CommunityTokenDeployer](#communitytokendeployer)
@@ -106,12 +106,12 @@ The smart contracts of this repository implement these tokens and how they'll be
 
 There are different roles in a Status community. Gaining roles in a community is done by proving ownership of certain assets and tokens. Below is a summary of the existing roles and what token funds are necessary to get a role:
 
-| **Role**     | **Description**                               | **Count** | **Token ownership**                                                           |
-| ------------ | --------------------------------------------- | --------- | ----------------------------------------------------------------------------- |
-| Owner        | Owner of the Status community.                | 1         | `OwnerToken`                                                                  |
-| Token Master | Helps creating community tokens and airdrops. | 0-n       | `MasterToken`                                                                 |
-| Admin        | Helps maintaining the community.              | 0-n       | Combination of `CollectibleV1`, `CommunityERC20`, `ERC721`, `ERC20`           |
-| Member       | Member of the community.                      | 0-n       | None or any combintion of `CollectibleV1`, `CommunityER20`, `ERC721`, `ERC20` |
+| **Role**     | **Description**                               | **Count** | **Token ownership**                                                             |
+| ------------ | --------------------------------------------- | --------- | ------------------------------------------------------------------------------- |
+| Owner        | Owner of the Status community.                | 1         | `OwnerToken`                                                                    |
+| Token Master | Helps creating community tokens and airdrops. | 0-n       | `MasterToken`                                                                   |
+| Admin        | Helps maintaining the community.              | 0-n       | Combination of `CommunityERC721`, `CommunityERC20`, `ERC721`, `ERC20`           |
+| Member       | Member of the community.                      | 0-n       | None or any combintion of `CommunityERC721`, `CommunityER20`, `ERC721`, `ERC20` |
 
 ### Owners
 
@@ -119,7 +119,7 @@ An owner is a Status user that has typically created a Status community and ther
 Owners have special privileges within a Status community, such as:
 
 - transferring community ownership to other accounts
-- creating community tokens (`CollectiveV1`, `CommunityERC20`)
+- creating community tokens (`CommunityERC721`, `CommunityERC20`)
 - creating token permissions
 - airdropping tokens to other users
 
@@ -129,7 +129,7 @@ The `OwnerToken` is an `ERC721` token and exists only once per community.
 ### Token Masters
 
 A token master is a Status user that has special privileges within a Status community.
-A token master is allowed to create community tokens (`CollectibleV1`, `CommunityERC20`), new token permissions as well as airdropping tokens to other accounts.
+A token master is allowed to create community tokens (`CommunityERC721`, `CommunityERC20`), new token permissions as well as airdropping tokens to other accounts.
 The primary reason for token masters to exist is that they help the single owner of the community with token related actions.
 
 There can be none or multiple token masters within a single Status community.
@@ -145,10 +145,10 @@ An admin is a member of a Status community with special privileges, such as:
 
 Owners and token masters can create token permissions in the community to make other users admins of the community.
 
-The admin role is represented via ownership of any token combination of `CollectibleV1`, `CommunityERC20`, `ERC721`, and `ERC20` tokens.
+The admin role is represented via ownership of any token combination of `CommunityERC721`, `CommunityERC20`, `ERC721`, and `ERC20` tokens.
 The owner or token masters have to create a token permission to specify which token ownership is needed to be an admin in the community.
 
-Both, `CollectibleV1` and `CommunityERC20` tokens are part of this repository.
+Both, `CommunityERC721` and `CommunityERC20` tokens are part of this repository.
 
 ## Community tokens
 
@@ -160,11 +160,11 @@ Below is a description of all community tokens that can be deployed and minted t
 
 ### `BaseToken`
 
-`BaseToken` is an abstract contract that `OwnerToken`, `MasterToken`, and `CollectibleV1` inherit from to get shared functionality.
+`BaseToken` is an abstract contract that `OwnerToken`, `MasterToken`, and `CommunityERC721` inherit from to get shared functionality.
 `BaseToken` is an `ERC721` token that offers some custom functionality:
 
 - A custom `onlyOwner` modifier that checks for ownership of wither `OwnerToken` or `MasterToken`
-- The ability to configure a maximum supply. This is used for both `MasterToken` and `CollectibleV1` tokens.
+- The ability to configure a maximum supply. This is used for both `MasterToken` and `CommunityERC721` tokens.
 - A `mintTo` function that allows for minting tokens to multiple addresses at once.
 - A mechanism to burn tokens "remotely". The use case here is to remove token masters or admins privileges.
 - The ability to batch transfer tokens to multiple receivers.
@@ -185,13 +185,13 @@ The `MasterToken` is coexists with the `OwnerToken`, however there's no mechanis
 
 `MasterToken` are not transferrable but remote burnable. This ensures malicious users can't allow other users to create or airdrop tokens via Status communities.
 
-### `CollectibleV1`
+### `CommunityERC721`
 
-`CollectibleV1` token inherits `BaseToken` and are used to create custom NFTs for Status communities.
+`CommunityERC721` token inherits `BaseToken` and are used to create custom NFTs for Status communities.
 The use case for these tokens are role based permissions.
 Owners or token masters might deploy instances of this token to create token permissions that introduce an admin role, or permissoins to view and/or post to channels.
 
-`CollectibleV1` tokens can also be configured to be transferrable or remote burnable.
+`CommunityERC721` tokens can also be configured to be transferrable or remote burnable.
 Creators of such a token can also specify their maximum supply.
 
 ### `CommunityERC20`
