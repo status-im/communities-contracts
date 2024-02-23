@@ -10,6 +10,5 @@ certoraRun \
 --packages @openzeppelin=lib/openzeppelin-contracts \
 --optimistic_loop \
 --rule_sanity "basic" \
---wait_for_results "all" \
 --msg "Verifying CommunityTokenDeployer.sol"
 

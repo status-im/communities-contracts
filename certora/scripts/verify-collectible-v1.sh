@@ -6,6 +6,5 @@ certoraRun \
 --optimistic_loop \
 --loop_iter 3 \
 --rule_sanity "basic" \
---wait_for_results "all" \
 --msg "Verifying CollectibleV1.sol"
 
