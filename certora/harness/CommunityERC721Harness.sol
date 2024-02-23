@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Mozilla Public License 2.0
 pragma solidity ^0.8.17;
 
-import {CollectibleV1} from "../../contracts/tokens/CollectibleV1.sol";
+import {CommunityERC721} from "../../contracts/tokens/CommunityERC721.sol";
 
-contract CollectibleV1Harness is CollectibleV1 {
+contract CommunityERC721Harness is CommunityERC721 {
     constructor(
         string memory name,
         string memory symbol,
@@ -14,7 +14,7 @@ contract CollectibleV1Harness is CollectibleV1 {
         address ownerToken,
         address masterToken
     )
-        CollectibleV1(
+        CommunityERC721(
             name,
             symbol,
             maxSupply,

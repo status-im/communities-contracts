@@ -23,11 +23,11 @@
   "scripts": {
     "clean": "rm -rf cache out",
     "lint": "pnpm lint:sol && pnpm prettier:check",
-    "verify": "pnpm verify:collectible_v1 && pnpm verify:community_token_deployer",
+    "verify": "pnpm verify:community_erc721 && pnpm verify:community_token_deployer",
     "lint:sol": "forge fmt --check && pnpm solhint {script,src,test}/**/*.sol",
     "prettier:check": "prettier --check **/*.{json,md,yml} --ignore-path=.prettierignore",
     "prettier:write": "prettier --write **/*.{json,md,yml} --ignore-path=.prettierignore",
-    "verify:collectible_v1": "./certora/scripts/verify-collectible-v1.sh",
+    "verify:community_erc721": "./certora/scripts/verify-community-erc721.sh",
     "verify:community_token_deployer": "./certora/scripts/verify-community-token-deployer.sh"
   }
 }
