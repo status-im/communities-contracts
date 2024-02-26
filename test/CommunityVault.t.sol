@@ -52,14 +52,7 @@ contract CommunityVaultTest is Test {
 contract CommunityVaultBaseERC20Test is CommunityVaultTest {
     function setUp() public virtual override {
         CommunityVaultTest.setUp();
-
-        // mint 10 tokens to user
-        address user = accounts[0];
-        erc20Token.mint(user, 10e18);
-
-        // user transfer 10 tokens to the vault
-        vm.prank(user);
-        erc20Token.transfer(address(vault), 10e18);
+        erc20Token.mint(accounts[0], 10e18);
     }
 }
 
@@ -69,8 +62,6 @@ contract TransferERC20ByNonAdminTest is CommunityVaultBaseERC20Test {
     }
 
     function test_revertIfCalledByNonAdmin() public {
-        assertEq(erc20Token.balanceOf(address(vault)), 10e18);
-
         uint256[] memory amounts = new uint256[](2);
         amounts[0] = 1;
         amounts[1] = 1;
@@ -83,13 +74,18 @@ contract TransferERC20ByNonAdminTest is CommunityVaultBaseERC20Test {
 }
 
 contract TransferERC20ByAdminTest is CommunityVaultBaseERC20Test {
+    uint256 depositAmount = 10e18;
+
     function setUp() public virtual override {
         CommunityVaultBaseERC20Test.setUp();
+
+        vm.startPrank(accounts[0]);
+        erc20Token.approve(address(vault), depositAmount);
+        vault.depositERC20(address(erc20Token), depositAmount);
+        vm.stopPrank();
     }
 
     function test_LengthMismatch() public {
-        assertEq(erc20Token.balanceOf(address(vault)), 10e18);
-
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = 5e18;
 
@@ -99,8 +95,6 @@ contract TransferERC20ByAdminTest is CommunityVaultBaseERC20Test {
     }
 
     function test_TransferAmountZero() public {
-        assertEq(erc20Token.balanceOf(address(vault)), 10e18);
-
         uint256[] memory amounts = new uint256[](2);
         amounts[0] = 5e18;
         amounts[1] = 0;
@@ -111,8 +105,6 @@ contract TransferERC20ByAdminTest is CommunityVaultBaseERC20Test {
     }
 
     function test_NoRecipients() public {
-        assertEq(erc20Token.balanceOf(address(vault)), 10e18);
-
         uint256[] memory amounts = new uint256[](0);
         address[] memory tmpAccounts = new address[](0);
 
@@ -123,15 +115,52 @@ contract TransferERC20ByAdminTest is CommunityVaultBaseERC20Test {
 
     function test_AdminCanTransferERC20() public {
         assertEq(erc20Token.balanceOf(address(vault)), 10e18);
+        assertEq(vault.erc20TokenBalances(address(erc20Token)), 10e18);
 
         uint256[] memory amounts = new uint256[](2);
-        amounts[0] = 5e18;
-        amounts[1] = 5e18;
+        amounts[0] = 3e18;
+        amounts[1] = 3e18;
 
         vm.prank(deployer);
         vault.transferERC20(address(erc20Token), accounts, amounts);
 
-        assertEq(erc20Token.balanceOf(address(vault)), 0);
+        assertEq(erc20Token.balanceOf(address(vault)), 4e18);
+        assertEq(vault.erc20TokenBalances(address(erc20Token)), 4e18);
+    }
+
+    function test_TransferERC20AmountTooBig() public {
+        assertEq(erc20Token.balanceOf(address(vault)), 10e18);
+        assertEq(vault.erc20TokenBalances(address(erc20Token)), 10e18);
+
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 10e18;
+        amounts[1] = 10e18;
+
+        vm.prank(deployer);
+        vm.expectRevert(CommunityVault.CommunityVault_ERC20TransferAmountTooBig.selector);
+        vault.transferERC20(address(erc20Token), accounts, amounts);
+    }
+}
+
+contract TransferERC20DepositTest is CommunityVaultBaseERC20Test {
+    function testSuccessfulDepositERC20() public {
+        uint256 depositAmount = 5;
+        uint256 initialVaultBalance = erc20Token.balanceOf(address(vault));
+        uint256 initialTokenBalanceValue = vault.erc20TokenBalances(address(erc20Token));
+
+        vm.startPrank(accounts[0]);
+        erc20Token.approve(address(vault), depositAmount);
+        vault.depositERC20(address(erc20Token), depositAmount);
+        vm.stopPrank();
+
+        assertEq(erc20Token.balanceOf(address(vault)), initialVaultBalance + depositAmount);
+        assertEq(vault.erc20TokenBalances(address(erc20Token)), initialTokenBalanceValue + depositAmount);
+    }
+
+    function testDepositZeroTokens() public {
+        vm.prank(accounts[0]);
+        vm.expectRevert(CommunityVault.CommunityVault_DepositAmountZero.selector);
+        vault.depositERC20(address(erc20Token), 0);
     }
 }
 
