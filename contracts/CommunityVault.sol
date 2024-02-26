@@ -17,11 +17,38 @@ import { CommunityOwnable } from "./CommunityOwnable.sol";
 contract CommunityVault is CommunityOwnable {
     using SafeERC20 for IERC20;
 
+    event ERC20Deposited(address indexed depositor, address indexed token, uint256 amount);
+    event ERC721Deposited(address indexed depositor, address indexed token, uint256 tokenId);
+
     error CommunityVault_LengthMismatch();
     error CommunityVault_NoRecipients();
     error CommunityVault_TransferAmountZero();
+    error CommunityVault_ERC20TransferAmountTooBig();
+    error CommunityVault_DepositAmountZero();
+
+    mapping(address => uint256) public erc20TokenBalances;
 
     constructor(address _ownerToken, address _masterToken) CommunityOwnable(_ownerToken, _masterToken) { }
+
+    /**
+     * @dev Allows anyone to deposit ERC20 tokens into the vault.
+     * @param token The address of the ERC20 token to deposit.
+     * @param amount The amount of tokens to deposit.
+     */
+    function depositERC20(address token, uint256 amount) external {
+        if (amount == 0) {
+            revert CommunityVault_DepositAmountZero();
+        }
+
+        // Transfer tokens from the sender to this contract
+        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
+
+        // Update the total balance of the token in the vault
+        erc20TokenBalances[token] += amount;
+
+        // Emit an event for the deposit (optional, but recommended for tracking)
+        emit ERC20Deposited(msg.sender, token, amount);
+    }
 
     /**
      * @dev Transfers ERC20 tokens to a list of addresses.
@@ -50,6 +77,11 @@ contract CommunityVault is CommunityOwnable {
                 revert CommunityVault_TransferAmountZero();
             }
 
+            if (amounts[i] > erc20TokenBalances[token]) {
+                revert CommunityVault_ERC20TransferAmountTooBig();
+            }
+
+            erc20TokenBalances[token] -= amounts[i];
             IERC20(token).safeTransfer(recipients[i], amounts[i]);
         }
     }
