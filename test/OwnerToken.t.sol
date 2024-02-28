@@ -50,7 +50,7 @@ contract SetMaxSupplyTest is OwnerTokenTest {
 
     function test_RevertWhen_CalledBecauseMaxSupplyIsLocked() public {
         vm.startPrank(deployer);
-        vm.expectRevert(bytes("max supply locked"));
+        vm.expectRevert(OwnerToken.OwnerToken_MaxSupplyLocked.selector);
         ownerToken.setMaxSupply(1000);
     }
 }
