@@ -5,6 +5,8 @@ import { BaseToken } from "./BaseToken.sol";
 import { CommunityOwnable } from "../CommunityOwnable.sol";
 
 contract OwnerToken is BaseToken {
+    error OwnerToken_MaxSupplyLocked();
+
     bytes public signerPublicKey;
 
     constructor(
@@ -22,8 +24,8 @@ contract OwnerToken is BaseToken {
         _mintTo(addresses);
     }
 
-    function setMaxSupply(uint256 _newMaxSupply) external override onlyCommunityOwnerOrTokenMaster {
-        revert("max supply locked");
+    function setMaxSupply(uint256 _newMaxSupply) external view override onlyCommunityOwnerOrTokenMaster {
+        revert OwnerToken_MaxSupplyLocked();
     }
 
     function setSignerPublicKey(bytes memory _newSignerPublicKey) external onlyCommunityOwnerOrTokenMaster {
