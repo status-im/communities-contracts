@@ -2,7 +2,6 @@
 pragma solidity ^0.8.17;
 
 import { BaseToken } from "./BaseToken.sol";
-import { CommunityOwnable } from "../CommunityOwnable.sol";
 
 contract OwnerToken is BaseToken {
     error OwnerToken_MaxSupplyLocked();
