@@ -168,26 +168,42 @@ contract CommunityVaultBaseERC721Test is CommunityVaultTest {
     function setUp() public virtual override {
         CommunityVaultTest.setUp();
 
-        // mint 2 token to user
+        // mint 4 token to user
         address user = accounts[0];
         erc721Token.mint(user);
         erc721Token.mint(user);
+        erc721Token.mint(user);
+        erc721Token.mint(user);
+    }
+}
+
+contract CommunityVaultBaseTransferERC721Test is CommunityVaultBaseERC721Test {
+    function setUp() public virtual override {
+        CommunityVaultBaseERC721Test.setUp();
+
+        address user = accounts[0];
 
         // user transfer 2 tokens to the vault
+        uint256[] memory ids = new uint256[](3);
+        ids[0] = 0;
+        ids[1] = 1;
+        ids[2] = 2;
+
         vm.startPrank(user);
-        erc721Token.transferFrom(user, address(vault), 0);
-        erc721Token.transferFrom(user, address(vault), 1);
+        erc721Token.approve(address(vault), ids[0]);
+        erc721Token.approve(address(vault), ids[1]);
+        erc721Token.approve(address(vault), ids[2]);
+        vault.depositERC721(address(erc721Token), ids);
         vm.stopPrank();
     }
 }
 
-contract TransferERC721ByNonAdminTest is CommunityVaultBaseERC721Test {
+contract TransferERC721ByNonAdminTest is CommunityVaultBaseTransferERC721Test {
     function setUp() public virtual override {
-        CommunityVaultBaseERC721Test.setUp();
+        CommunityVaultBaseTransferERC721Test.setUp();
     }
 
     function test_RevertIfCalledByNonAdmin() public {
-        assertEq(erc721Token.balanceOf(address(vault)), 2);
         uint256[] memory ids = new uint256[](2);
         ids[0] = 0;
         ids[1] = 1;
@@ -199,14 +215,12 @@ contract TransferERC721ByNonAdminTest is CommunityVaultBaseERC721Test {
     }
 }
 
-contract TransferERC721ByAdminTest is CommunityVaultBaseERC721Test {
+contract TransferERC721ByAdminTest is CommunityVaultBaseTransferERC721Test {
     function setUp() public virtual override {
-        CommunityVaultBaseERC721Test.setUp();
+        CommunityVaultBaseTransferERC721Test.setUp();
     }
 
     function test_LengthMismatch() public {
-        assertEq(erc721Token.balanceOf(address(vault)), 2);
-
         uint256[] memory ids = new uint256[](1);
         ids[0] = 0;
 
@@ -216,8 +230,6 @@ contract TransferERC721ByAdminTest is CommunityVaultBaseERC721Test {
     }
 
     function test_NoRecipients() public {
-        assertEq(erc721Token.balanceOf(address(vault)), 2);
-
         uint256[] memory ids = new uint256[](0);
         address[] memory tmpAccounts = new address[](0);
 
@@ -227,10 +239,16 @@ contract TransferERC721ByAdminTest is CommunityVaultBaseERC721Test {
     }
 
     function test_AdminCanTransferERC721() public {
-        assertEq(erc721Token.balanceOf(address(vault)), 2);
+        assertEq(erc721Token.balanceOf(address(vault)), 3);
+        assertEq(vault.erc721TokenBalances(address(erc721Token)), 3);
+
+        // accounts[0] has 1 token with id 3
+        assertEq(erc721Token.balanceOf(accounts[0]), 1);
+        assertEq(erc721Token.balanceOf(accounts[1]), 0);
 
         assertEq(erc721Token.ownerOf(0), address(vault));
         assertEq(erc721Token.ownerOf(1), address(vault));
+        assertEq(erc721Token.ownerOf(2), address(vault));
 
         uint256[] memory ids = new uint256[](2);
         ids[0] = 0;
@@ -239,6 +257,49 @@ contract TransferERC721ByAdminTest is CommunityVaultBaseERC721Test {
         vm.prank(deployer);
         vault.transferERC721(address(erc721Token), accounts, ids);
 
-        assertEq(erc721Token.balanceOf(address(vault)), 0);
+        assertEq(erc721Token.balanceOf(address(vault)), 1);
+        assertEq(vault.erc721TokenBalances(address(erc721Token)), 1);
+
+        assertEq(erc721Token.balanceOf(accounts[0]), 2);
+        assertEq(erc721Token.balanceOf(accounts[1]), 1);
+    }
+
+    function test_RevertOnTransferERC721IfNotDeposited() public {
+        // id 3 is not deposited
+        assertEq(erc721Token.ownerOf(3), address(accounts[0]));
+
+        uint256[] memory ids = new uint256[](1);
+        ids[0] = 3;
+
+        address[] memory accountsList = new address[](1);
+        accountsList[0] = accounts[0];
+
+        vm.prank(deployer);
+        vm.expectRevert(CommunityVault.CommunityVault_ERC721TokenNotDeposited.selector);
+        vault.transferERC721(address(erc721Token), accountsList, ids);
+    }
+}
+
+contract CommunityVaultDepositERC721Test is CommunityVaultBaseERC721Test {
+    function setUp() public virtual override {
+        CommunityVaultBaseERC721Test.setUp();
+    }
+
+    function testSuccessfulDepositERC721() public {
+        uint256[] memory ids = new uint256[](2);
+        ids[0] = 0;
+        ids[1] = 1;
+
+        uint256 initialVaultBalance = erc721Token.balanceOf(address(vault));
+        uint256 initialTokenBalanceValue = vault.erc721TokenBalances(address(erc721Token));
+
+        vm.startPrank(accounts[0]);
+        erc721Token.approve(address(vault), ids[0]);
+        erc721Token.approve(address(vault), ids[1]);
+        vault.depositERC721(address(erc721Token), ids);
+        vm.stopPrank();
+
+        assertEq(erc721Token.balanceOf(address(vault)), initialVaultBalance + 2);
+        assertEq(vault.erc721TokenBalances(address(erc721Token)), initialTokenBalanceValue + 2);
     }
 }
