@@ -303,3 +303,47 @@ contract CommunityVaultDepositERC721Test is CommunityVaultBaseERC721Test {
         assertEq(vault.erc721TokenBalances(address(erc721Token)), initialTokenBalanceValue + 2);
     }
 }
+
+contract CommunityVaulWithdrawUntrackedERC721Test is CommunityVaultBaseERC721Test {
+    function setUp() public virtual override {
+        CommunityVaultBaseERC721Test.setUp();
+        vm.startPrank(accounts[0]);
+        // trasfer to contract ids 0 and 1
+        erc721Token.transferFrom(accounts[0], address(vault), 0);
+        erc721Token.transferFrom(accounts[0], address(vault), 1);
+
+        // deposit id 2
+        uint256[] memory ids = new uint256[](1);
+        ids[0] = 2;
+        erc721Token.approve(address(vault), 2);
+        vault.depositERC721(address(erc721Token), ids);
+        vm.stopPrank();
+    }
+
+    function testRevertWithdrawalIfTokenIsTracked() public {
+        uint256[] memory ids = new uint256[](1);
+        ids[0] = 2;
+
+        assertEq(erc721Token.ownerOf(2), address(vault));
+        assertEq(vault.getERC721DepositedTokenByIndex(address(erc721Token), 0), 2);
+
+        vm.prank(deployer);
+        vm.expectRevert(CommunityVault.CommunityVault_CannotWithdrawTrackedERC721.selector);
+        vault.withdrawUntrackedERC721(address(erc721Token), ids, accounts[0]);
+    }
+
+    function testSuccessfulDepositERC721() public {
+        uint256[] memory ids = new uint256[](2);
+        ids[0] = 0;
+        ids[1] = 1;
+
+        assertEq(erc721Token.ownerOf(0), address(vault));
+        assertEq(erc721Token.ownerOf(1), address(vault));
+
+        vm.prank(deployer);
+        vault.withdrawUntrackedERC721(address(erc721Token), ids, accounts[0]);
+
+        assertEq(erc721Token.ownerOf(0), accounts[0]);
+        assertEq(erc721Token.ownerOf(1), accounts[0]);
+    }
+}

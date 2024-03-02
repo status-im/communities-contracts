@@ -31,6 +31,8 @@ contract CommunityVault is CommunityOwnable, IERC721Receiver {
     error CommunityVault_IndexOutOfBounds();
     error CommunityVault_ERC721TokenAlreadyDeposited();
     error CommunityVault_ERC721TokenNotDeposited();
+    error CommunityVault_AmountExceedsUntrackedBalanceERC20();
+    error CommunityVault_CannotWithdrawTrackedERC721();
 
     mapping(address => uint256) public erc20TokenBalances;
     mapping(address => EnumerableSet.UintSet) private erc721TokenIds;
@@ -166,6 +168,53 @@ contract CommunityVault is CommunityOwnable, IERC721Receiver {
             }
 
             IERC721(token).safeTransferFrom(address(this), recipients[i], tokenIds[i]);
+        }
+    }
+
+    /// @notice Withdraws a specified amount of an untracked ERC20 token from the community vault.
+    /// @dev This function allows the community owner or token master to withdraw untracked ERC20 tokens. It checks if
+    /// the requested amount does not exceed the untracked balance. If it does, the transaction is reverted.
+    /// @param tokenAddress The address of the ERC20 token to withdraw.
+    /// @param amount The amount of the ERC20 token to withdraw.
+    /// @param to The address to which the ERC20 tokens will be transferred.
+    function withdrawUntrackedERC20(
+        address tokenAddress,
+        uint256 amount,
+        address to
+    )
+        public
+        onlyCommunityOwnerOrTokenMaster
+    {
+        uint256 contractBalance = IERC20(tokenAddress).balanceOf(address(this));
+        uint256 untrackedBalance = contractBalance - erc20TokenBalances[tokenAddress];
+
+        if (amount > untrackedBalance) {
+            revert CommunityVault_AmountExceedsUntrackedBalanceERC20();
+        }
+
+        IERC20(tokenAddress).safeTransfer(to, amount);
+    }
+
+    /// @notice Withdraws specified ERC721 tokens that are not tracked by the community vault.
+    /// @dev This function allows the community owner or token master to withdraw untracked ERC721 tokens by token IDs.
+    /// It checks each token ID against tracked tokens and if any are found, the transaction is reverted.
+    /// @param tokenAddress The address of the ERC721 token to withdraw.
+    /// @param tokenIds An array of token IDs of the ERC721 tokens to withdraw.
+    /// @param to The address to which the ERC721 tokens will be transferred.
+    function withdrawUntrackedERC721(
+        address tokenAddress,
+        uint256[] memory tokenIds,
+        address to
+    )
+        public
+        onlyCommunityOwnerOrTokenMaster
+    {
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            if (erc721TokenIds[tokenAddress].contains(tokenIds[i])) {
+                revert CommunityVault_CannotWithdrawTrackedERC721();
+            }
+
+            IERC721(tokenAddress).safeTransferFrom(address(this), to, tokenIds[i]);
         }
     }
 
