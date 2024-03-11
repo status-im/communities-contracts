@@ -74,7 +74,7 @@ contract TransferERC20ByNonAdminTest is CommunityVaultBaseERC20Test {
 }
 
 contract TransferERC20ByAdminTest is CommunityVaultBaseERC20Test {
-    uint256 depositAmount = 10e18;
+    uint256 private depositAmount = 10e18;
 
     function setUp() public virtual override {
         CommunityVaultBaseERC20Test.setUp();
@@ -161,6 +161,40 @@ contract DepositERC20Test is CommunityVaultBaseERC20Test {
         vm.prank(accounts[0]);
         vm.expectRevert(CommunityVault.CommunityVault_DepositAmountZero.selector);
         vault.depositERC20(address(erc20Token), 0);
+    }
+}
+
+contract CommunityVaultWithdrawUntrackedERC20Test is CommunityVaultBaseERC20Test {
+    function setUp() public virtual override {
+        CommunityVaultBaseERC20Test.setUp();
+        assertEq(erc20Token.balanceOf(accounts[0]), 10e18);
+
+        vm.startPrank(accounts[0]);
+
+        // deposit 2 tokens
+        erc20Token.approve(address(vault), 2e18);
+        vault.depositERC20(address(erc20Token), 2e18);
+
+        // trasfer 8 tokens
+        erc20Token.transfer(address(vault), 8e18);
+        vm.stopPrank();
+    }
+
+    function testRevertWithdrawalIfAmountIsMoreThanTheUntracked() public {
+        vm.prank(deployer);
+        vm.expectRevert(CommunityVault.CommunityVault_AmountExceedsUntrackedBalanceERC20.selector);
+        vault.withdrawUntrackedERC20(address(erc20Token), 9e18, accounts[0]);
+    }
+
+    function testSuccessfulWithdrawal() public {
+        assertEq(erc20Token.balanceOf(accounts[0]), 0e18);
+        assertEq(erc20Token.balanceOf(address(vault)), 10e18);
+
+        vm.prank(deployer);
+        vault.withdrawUntrackedERC20(address(erc20Token), 8e18, accounts[0]);
+
+        assertEq(erc20Token.balanceOf(accounts[0]), 8e18);
+        assertEq(erc20Token.balanceOf(address(vault)), 2e18);
     }
 }
 
@@ -304,7 +338,7 @@ contract CommunityVaultDepositERC721Test is CommunityVaultBaseERC721Test {
     }
 }
 
-contract CommunityVaulWithdrawUntrackedERC721Test is CommunityVaultBaseERC721Test {
+contract CommunityVaultWithdrawUntrackedERC721Test is CommunityVaultBaseERC721Test {
     function setUp() public virtual override {
         CommunityVaultBaseERC721Test.setUp();
         vm.startPrank(accounts[0]);
@@ -332,7 +366,7 @@ contract CommunityVaulWithdrawUntrackedERC721Test is CommunityVaultBaseERC721Tes
         vault.withdrawUntrackedERC721(address(erc721Token), ids, accounts[0]);
     }
 
-    function testSuccessfulDepositERC721() public {
+    function testSuccessfulWithdrUntrackedERC721() public {
         uint256[] memory ids = new uint256[](2);
         ids[0] = 0;
         ids[1] = 1;
