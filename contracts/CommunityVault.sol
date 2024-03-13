@@ -9,6 +9,11 @@ import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Rec
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import { CommunityOwnable } from "./CommunityOwnable.sol";
 
+interface IVault {
+    function depositERC20(address token, uint256 amount) external;
+    function depositERC721(address token, uint256[] calldata tokenIds) external;
+}
+
 /**
  * @title CommunityVault
  * @dev This contract acts as a Vault for storing ERC20 and ERC721 tokens.
@@ -16,7 +21,7 @@ import { CommunityOwnable } from "./CommunityOwnable.sol";
  *      Only community owners, as defined in the CommunityOwnable contract, have
  *      permissions to transfer these tokens out of the vault.
  */
-contract CommunityVault is CommunityOwnable, IERC721Receiver {
+contract CommunityVault is IVault, CommunityOwnable, IERC721Receiver {
     using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.UintSet;
 
@@ -33,11 +38,28 @@ contract CommunityVault is CommunityOwnable, IERC721Receiver {
     error CommunityVault_ERC721TokenNotDeposited();
     error CommunityVault_AmountExceedsUntrackedBalanceERC20();
     error CommunityVault_CannotWithdrawTrackedERC721();
+    error CommunityVault_ZeroAddress();
+    error CommunityVault_NewImplementationNotSet();
 
     mapping(address => uint256) public erc20TokenBalances;
     mapping(address => EnumerableSet.UintSet) private erc721TokenIds;
 
+    // New implementation address for ERC20 token migration
+    address private newImplementation;
+
     constructor(address _ownerToken, address _masterToken) CommunityOwnable(_ownerToken, _masterToken) { }
+
+    /**
+     * @dev Sets the new implementation address. Only callable by the community owner or token master.
+     * @param _newImplementation The address of the new implementation to which tokens will be migrated.
+     */
+    function setNewImplementation(address _newImplementation) external onlyCommunityOwnerOrTokenMaster {
+        if (_newImplementation == address(0)) {
+            revert CommunityVault_ZeroAddress();
+        }
+
+        newImplementation = _newImplementation;
+    }
 
     /**
      * @dev Allows anyone to deposit ERC20 tokens into the vault.
@@ -225,5 +247,49 @@ contract CommunityVault is CommunityOwnable, IERC721Receiver {
      */
     function onERC721Received(address, address, uint256, bytes calldata) public pure override returns (bytes4) {
         return this.onERC721Received.selector;
+    }
+
+    /**
+     * @dev Migrates ERC20 tokens to the new implementation address.
+     * @param tokens The addresses of the ERC20 tokens to migrate.
+     */
+    function migrateERC20Tokens(address[] calldata tokens) external onlyCommunityOwnerOrTokenMaster {
+        if (newImplementation == address(0)) {
+            revert CommunityVault_NewImplementationNotSet();
+        }
+
+        for (uint256 i = 0; i < tokens.length; i++) {
+            address token = tokens[i];
+            uint256 balance = erc20TokenBalances[token];
+            // TODO: use custom error if this require is still needed
+            require(balance > 0, "No balance to migrate");
+
+            erc20TokenBalances[token] = 0;
+            IERC20(token).approve(newImplementation, balance);
+            IVault(newImplementation).depositERC20(token, balance);
+        }
+    }
+
+    /**
+     * @dev Migrates ERC721 tokens to the new implementation address.
+     * @param token The address of the ERC721 token to migrate.
+     * @param tokenIds The IDs of the ERC721 tokens to migrate.
+     */
+    function migrateERC721Tokens(address token, uint256[] calldata tokenIds) external onlyCommunityOwnerOrTokenMaster {
+        if (newImplementation == address(0)) {
+            revert CommunityVault_NewImplementationNotSet();
+        }
+
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            uint256 tokenId = tokenIds[i];
+            if (!erc721TokenIds[token].contains(tokenId)) {
+                revert CommunityVault_ERC721TokenNotDeposited();
+            }
+
+            erc721TokenIds[token].remove(tokenId);
+
+            IERC721(token).approve(newImplementation, tokenId);
+            IVault(newImplementation).depositERC721(token, tokenIds);
+        }
     }
 }
