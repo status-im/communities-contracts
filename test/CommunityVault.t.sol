@@ -381,3 +381,158 @@ contract CommunityVaultWithdrawUntrackedERC721Test is CommunityVaultBaseERC721Te
         assertEq(erc721Token.ownerOf(1), accounts[0]);
     }
 }
+
+contract CommunityVaultMigrationTest is CommunityVaultTest {
+    CommunityVault internal newVault;
+    TestERC20Token internal erc20Token2;
+    TestERC20Token internal erc20Token3;
+
+    function setUp() public virtual override {
+        CommunityVaultTest.setUp();
+
+        newVault = new CommunityVault(address(ownerToken), address(masterToken));
+        erc20Token2 = new TestERC20Token();
+        erc20Token3 = new TestERC20Token();
+
+        vm.startPrank(deployer);
+        // mint erc20 tokens and deposit
+        erc20Token.mint(deployer, 10e18);
+        erc20Token.approve(address(vault), 10e18);
+        vault.depositERC20(address(erc20Token), 10e18);
+        erc20Token2.mint(deployer, 5e18);
+        erc20Token2.approve(address(vault), 5e18);
+        vault.depositERC20(address(erc20Token2), 5e18);
+
+        // mint erc721 tokens and deposit
+        erc721Token.mint(deployer);
+        erc721Token.mint(deployer);
+        erc721Token.mint(deployer);
+        erc721Token.mint(deployer);
+        // id 4 is not deposited
+        erc721Token.mint(deployer);
+
+        uint256[] memory ids = new uint256[](4);
+        ids[0] = 0;
+        ids[1] = 1;
+        ids[2] = 2;
+        ids[3] = 3;
+        erc721Token.approve(address(vault), 0);
+        erc721Token.approve(address(vault), 1);
+        erc721Token.approve(address(vault), 2);
+        erc721Token.approve(address(vault), 3);
+        vault.depositERC721(address(erc721Token), ids);
+
+        vm.stopPrank();
+    }
+
+    function test_migrateERC20RevertsIfNotAuthorized() public {
+        vm.prank(accounts[0]);
+        vm.expectRevert(CommunityOwnable.CommunityOwnable_NotAuthorized.selector);
+
+        address[] memory tokens = new address[](0);
+        vault.migrateERC20Tokens(tokens);
+    }
+
+    function test_migrateERC721RevertsIfNotAuthorized() public {
+        vm.prank(accounts[0]);
+        vm.expectRevert(CommunityOwnable.CommunityOwnable_NotAuthorized.selector);
+
+        uint256[] memory ids = new uint256[](0);
+        vault.migrateERC721Tokens(address(0), ids);
+    }
+
+    function test_migrateERC20RevertsIfNewImplementationIsNotSet() public {
+        assertEq(vault.newImplementation(), address(0));
+        vm.prank(deployer);
+        vm.expectRevert(CommunityVault.CommunityVault_NewImplementationNotSet.selector);
+
+        address[] memory tokens = new address[](0);
+        vault.migrateERC20Tokens(tokens);
+    }
+
+    function test_migrateERC721RevertsIfNewImplementationIsNotSet() public {
+        assertEq(vault.newImplementation(), address(0));
+        vm.prank(deployer);
+        vm.expectRevert(CommunityVault.CommunityVault_NewImplementationNotSet.selector);
+
+        uint256[] memory ids = new uint256[](0);
+        vault.migrateERC721Tokens(address(0), ids);
+    }
+
+    function test_migrateERC20RevertsIfTokenBalanceIsZero() public {
+        vm.startPrank(deployer);
+        vault.setNewImplementation(address(newVault));
+
+        assertEq(erc20Token3.balanceOf(address(vault)), 0);
+        vm.expectRevert(CommunityVault.CommunityVault_ZeroBalance.selector);
+
+        address[] memory tokens = new address[](1);
+        tokens[0] = address(erc20Token3);
+
+        vault.migrateERC20Tokens(tokens);
+
+        vm.stopPrank();
+    }
+
+    function test_migrateERC20Tokens() public {
+        vm.startPrank(deployer);
+
+        vault.setNewImplementation(address(newVault));
+        assertEq(erc20Token.balanceOf(address(vault)), 10e18);
+        assertEq(erc20Token2.balanceOf(address(vault)), 5e18);
+        assertEq(erc20Token.balanceOf(address(newVault)), 0);
+        assertEq(erc20Token2.balanceOf(address(newVault)), 0);
+
+        address[] memory tokens = new address[](2);
+        tokens[0] = address(erc20Token);
+        tokens[1] = address(erc20Token2);
+        vault.migrateERC20Tokens(tokens);
+
+        assertEq(erc20Token.balanceOf(address(vault)), 0);
+        assertEq(erc20Token2.balanceOf(address(vault)), 0);
+        assertEq(erc20Token.balanceOf(address(newVault)), 10e18);
+        assertEq(erc20Token2.balanceOf(address(newVault)), 5e18);
+
+        vm.stopPrank();
+    }
+
+    function test_migrateERC721TokensRevertsIfTokenNotDeposited() public {
+        vm.startPrank(deployer);
+
+        vault.setNewImplementation(address(newVault));
+        assertEq(erc721Token.ownerOf(4), deployer);
+
+        uint256[] memory ids = new uint256[](1);
+        ids[0] = 4;
+
+        vm.expectRevert(CommunityVault.CommunityVault_ERC721TokenNotDeposited.selector);
+        vault.migrateERC721Tokens(address(erc721Token), ids);
+
+        vm.stopPrank();
+    }
+
+    function test_migrateERC721Tokens() public {
+        vm.startPrank(deployer);
+
+        vault.setNewImplementation(address(newVault));
+        assertEq(erc721Token.ownerOf(0), address(vault));
+        assertEq(erc721Token.ownerOf(1), address(vault));
+        assertEq(erc721Token.ownerOf(2), address(vault));
+        assertEq(erc721Token.ownerOf(3), address(vault));
+
+        uint256[] memory ids = new uint256[](4);
+        ids[0] = 0;
+        ids[1] = 1;
+        ids[2] = 2;
+        ids[3] = 3;
+
+        vault.migrateERC721Tokens(address(erc721Token), ids);
+
+        assertEq(erc721Token.ownerOf(0), address(newVault));
+        assertEq(erc721Token.ownerOf(1), address(newVault));
+        assertEq(erc721Token.ownerOf(2), address(newVault));
+        assertEq(erc721Token.ownerOf(3), address(newVault));
+
+        vm.stopPrank();
+    }
+}
