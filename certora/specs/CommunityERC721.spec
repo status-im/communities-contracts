@@ -16,11 +16,11 @@ ghost mathint sumOfBalances {
     init_state axiom sumOfBalances == 0;
 }
 
-hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) STORAGE {
+hook Sstore _balances[KEY address addr] uint256 newValue (uint256 oldValue) {
     sumOfBalances = sumOfBalances - oldValue + newValue;
 }
 
-hook Sload uint256 balance _balances[KEY address addr] STORAGE {
+hook Sload uint256 balance _balances[KEY address addr] {
     require sumOfBalances >= to_mathint(balance);
 }
 
