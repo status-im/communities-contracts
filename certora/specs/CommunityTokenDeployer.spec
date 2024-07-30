@@ -9,9 +9,6 @@ methods {
 
   function CommunityOwnerTokenRegistry.getEntry(address) external returns (address) envfree;
   function CommunityOwnerTokenRegistry.tokenDeployer() external returns (address) envfree;
-
-
-  function _.balanceOf(address _owner) external => DISPATCHER(true);
 }
 
 rule integrityOfDeploy {
