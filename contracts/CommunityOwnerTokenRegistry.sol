@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 import { Ownable2Step } from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import { IAddressRegistry } from "./interfaces/IAddressRegistry.sol";
